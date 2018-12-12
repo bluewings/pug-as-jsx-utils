@@ -19,7 +19,7 @@ const tests = toTestArr(`
 describe('import', () => {
   tests.forEach(({ name, input, expected }) => {
     it(name, () => {
-      const output = pugToJsx(input).code;
+      const output = pugToJsx(input).jsx;
       output.should.be.eql(expected);
     });
   });

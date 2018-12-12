@@ -20,13 +20,13 @@ const pugToJsx = (source) => {
   const localWorks = works.map(({ pre, post }) => ({ pre, post, context: {} }));
 
   // force at least two spaces between depths
-  let code = `\n${source.split(/\n/)
+  let pugCode = `\n${source.split(/\n/)
     .map(e => e.replace(/^(\t*)/, (whole, p1) => p1.replace(/\t/g, '  ')))
     .map(e => e.replace(/^(\s*)/, (whole, p1) => p1.replace(/\s/g, '  ')))
     .join('\n')}\n`;
 
   // convert annotations to tags with preprocessing
-  const { lines, annot, imports } = code.split(/\n/).reduce((dict, curr) => {
+  const { lines, annot, imports } = pugCode.split(/\n/).reduce((dict, curr) => {
     let stepBack = '';
     annotations.forEach((annotation) => {
       if (curr.match(annotation.pattern)) {
@@ -52,7 +52,7 @@ const pugToJsx = (source) => {
   }, { lines: [], annot: {}, imports: [] });
 
   // pre-processing pug.render
-  code = localWorks
+  pugCode = localWorks
     .filter(({ pre }) => pre && pre.length === 2)
     .map(({ pre, context }) => [...pre, context])
     .reduce((prev, [pattern, replaceFn, context]) => {
@@ -63,11 +63,11 @@ const pugToJsx = (source) => {
     }, lines.join('\n'));
 
   // pug to html
-  code = `\n${pug.render(code, { pretty: true })}\n`;
+  let jsxCode = `\n${pug.render(pugCode, { pretty: true })}\n`;
 
   // post-processing pug.render
   // post-processing is performed in the reverse order of pre-processing
-  code = localWorks
+  jsxCode = localWorks
     .reverse()
     .filter(({ post }) => post && post.length === 2)
     .map(({ post, context }) => [...post, context])
@@ -76,23 +76,23 @@ const pugToJsx = (source) => {
         return prev.replace(pattern, replaceFn);
       }
       return prev.replace(pattern, (...args) => replaceFn(context, ...args));
-    }, code);
+    }, jsxCode);
 
-  // return the tag with the code block defined in the annotations
-  code = Object.keys(annot)
+  // return the tag with the jsx block defined in the annotations
+  jsxCode = Object.keys(annot)
     .reduce((prev, key) => prev
       .replace(new RegExp(`<annot_${key}>`, 'g'), annot[key].startBlock.trim())
       .replace(new RegExp(`</annot_${key}>`, 'g'), annot[key].endBlock.trim()),
-    code);
+    jsxCode);
 
   try {
-    code = prettier.format(code, jsxPrettierOptions);
+    jsxCode = prettier.format(jsxCode, jsxPrettierOptions);
   } catch (err) {
-    code = prettier.format(`<>${code}</>`, jsxPrettierOptions);
+    jsxCode = prettier.format(`<>${jsxCode}</>`, jsxPrettierOptions);
   }
-  code = code.trim().replace(/(^;|;$)/g, '');
+  const jsx = jsxCode.trim().replace(/(^;|;$)/g, '');
 
-  return { code, imports };
+  return { jsx, imports };
 };
 
 module.exports.pugToJsx = pugToJsx;
