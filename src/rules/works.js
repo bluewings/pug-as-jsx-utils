@@ -1,4 +1,4 @@
-const { hashCode } = require('./utils');
+const { hashCode } = require('../lib/util');
 
 const works = [
   // combine the contents of two className attributes.

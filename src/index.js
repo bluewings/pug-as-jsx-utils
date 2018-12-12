@@ -1,8 +1,8 @@
 const pug = require('pug');
 const prettier = require('prettier');
-const { hashCode } = require('./utils');
-const works = require('./works');
-const annotations = require('./annotations');
+const { hashCode } = require('./lib/util');
+const works = require('./rules/works');
+const annotations = require('./rules/annotations');
 
 const jsxPrettierOptions = {
   parser: 'babylon',
