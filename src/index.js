@@ -1,8 +1,8 @@
-const pug = require('pug');
-const prettier = require('prettier');
-const { hashCode } = require('./lib/util');
-const works = require('./rules/works');
-const annotations = require('./rules/annotations');
+import pug from 'pug';
+import prettier from 'prettier';
+import { hashCode } from './lib/util';
+import works from './rules/works';
+import annotations from './rules/annotations';
 
 const jsxPrettierOptions = {
   parser: 'babylon',
@@ -95,4 +95,6 @@ const pugToJsx = (source) => {
   return { jsx, imports };
 };
 
-module.exports.pugToJsx = pugToJsx;
+export {
+  pugToJsx,
+};

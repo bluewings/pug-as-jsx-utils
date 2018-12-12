@@ -116,4 +116,4 @@ const annotations = [
   },
 ];
 
-module.exports = annotations;
+export default annotations;

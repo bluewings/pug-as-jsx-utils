@@ -1,4 +1,4 @@
-const { hashCode } = require('../lib/util');
+import { hashCode } from '../lib/util';
 
 const works = [
   // combine the contents of two className attributes.
@@ -58,4 +58,4 @@ const works = [
   { post: [/="(\{.*?\})[;]{0,1}"/g, (context, whole, p1) => `=${p1.replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&')}`] },
 ];
 
-module.exports = works;
+export default works;

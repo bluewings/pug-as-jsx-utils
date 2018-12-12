@@ -20,4 +20,6 @@ const hashCode = (str) => {
   return hash;
 };
 
-module.exports.hashCode = hashCode;
+export {
+  hashCode,
+};
