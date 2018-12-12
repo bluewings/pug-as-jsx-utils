@@ -1,14 +1,25 @@
 const annotations = [
+  // imports
+  {
+    pattern: /^\/\/\s+@import\s+([^\s]+)\s+=>\s+([^\s]+)$/,
+    process: (current, pattern) => {
+      const [, moduleName, name] = current.match(pattern);
+      return {
+        importAs: { name, moduleName },
+        replacement: '',
+      };
+    },
+  },
+
   // decorator
   {
     pattern: /^(\s*)(.*)(@decorator='\s*([^\s]+)\s*')/,
     process: (current, pattern) => {
-      const [, indent,,, decorator] = current.match(pattern);
+      const [,,,, decorator] = current.match(pattern);
       return {
-        // startBlock: `${indent}| {${decorator}(`,
-        startBlock: `${indent}| {${decorator}(`,
+        startBlock: `{${decorator}(`,
         replacement: current.replace(pattern, '$1$2').replace(/\(\s*,\s*/, '('),
-        endBlock: `${indent}| )}`,
+        endBlock: ')}',
       };
     },
   },
