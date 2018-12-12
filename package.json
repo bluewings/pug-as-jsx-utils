@@ -1,0 +1,49 @@
+{
+  "name": "pug-as-jsx-utils",
+  "version": "1.0.0",
+  "main": "dist/pug-as-jsx-utils.cjs.js",
+  "module": "dist/pug-as-jsx-utils.es.js",
+  "jsnext:main": "dist/pug-as-jsx-utils.es.js",
+  "description": "utils for pug-as-jsx",
+  "author": {
+    "name": "Sung Won Cha",
+    "email": "mygenie3@naver.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bluewings/pug-as-jsx-utils"
+  },
+  "dependencies": {
+    "prettier": "^1.15.3",
+    "pug": "^2.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.0",
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "eslint": "^5.10.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.11.1",
+    "mocha": "^5.2.0",
+    "prettier": "^1.15.3",
+    "pug": "^2.0.3",
+    "rollup": "^0.67.4",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "should": "^13.2.3"
+  },
+  "scripts": {
+    "test": "mocha",
+    "pretest": "npm run build",
+    "build": "rollup -c",
+    "prebuild": "rm -rf dist/*"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "license": "MIT"
+}
