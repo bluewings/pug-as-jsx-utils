@@ -16,7 +16,7 @@ const jsxPrettierOptions = {
   jsxBracketSameLine: false,
 };
 
-const pugAsJsx = (source) => {
+const pugToJsx = (source) => {
   const localWorks = works.map(({ pre, post }) => ({ pre, post, context: {} }));
 
   // force at least two spaces between depths
@@ -95,4 +95,4 @@ const pugAsJsx = (source) => {
   return { code, importAs };
 };
 
-module.exports = pugAsJsx;
+module.exports.pugToJsx = pugToJsx;

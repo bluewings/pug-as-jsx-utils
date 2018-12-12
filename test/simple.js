@@ -1,5 +1,5 @@
 require('should');
-const pugAsJsx = require('..');
+const { pugToJsx } = require('..');
 const { toTestArr } = require('./helper');
 
 const tests = toTestArr(`
@@ -60,7 +60,7 @@ div
 describe('simple', () => {
   tests.forEach(({ name, input, expected }) => {
     it(name, () => {
-      const output = pugAsJsx(input).code;
+      const output = pugToJsx(input).code;
       output.should.be.eql(expected);
     });
   });
