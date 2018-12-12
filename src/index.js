@@ -26,15 +26,15 @@ const pugToJsx = (source) => {
     .join('\n')}\n`;
 
   // convert annotations to tags with preprocessing
-  const { lines, annot, importAs } = code.split(/\n/).reduce((dict, curr) => {
+  const { lines, annot, imports } = code.split(/\n/).reduce((dict, curr) => {
     let stepBack = '';
     annotations.forEach((annotation) => {
       if (curr.match(annotation.pattern)) {
         const {
-          startBlock, replacement, endBlock, importAs: imports,
+          startBlock, replacement, endBlock, import: importAs,
         } = annotation.process(curr, annotation.pattern);
-        if (imports) {
-          dict.importAs.push(imports);
+        if (importAs) {
+          dict.imports.push(importAs);
         }
         if (startBlock || endBlock) {
           const content = { startBlock, endBlock };
@@ -49,7 +49,7 @@ const pugToJsx = (source) => {
     });
     dict.lines.push(`${stepBack}${curr}`);
     return dict;
-  }, { lines: [], annot: {}, importAs: [] });
+  }, { lines: [], annot: {}, imports: [] });
 
   // pre-processing pug.render
   code = localWorks
@@ -92,7 +92,7 @@ const pugToJsx = (source) => {
   }
   code = code.trim().replace(/(^;|;$)/g, '');
 
-  return { code, importAs };
+  return { code, imports };
 };
 
 module.exports.pugToJsx = pugToJsx;
