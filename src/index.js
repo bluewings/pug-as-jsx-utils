@@ -1,6 +1,6 @@
 import pug from 'pug';
 import prettier from 'prettier';
-import { hashCode } from './lib/util';
+import { analyzeJsx, hashCode } from './lib/util';
 import works from './rules/works';
 import annotations from './rules/annotations';
 
@@ -97,4 +97,5 @@ const pugToJsx = (source) => {
 
 export {
   pugToJsx,
+  analyzeJsx,
 };
