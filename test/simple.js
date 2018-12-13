@@ -33,6 +33,33 @@ ul.nav.nav-tabs(className='{"nav-tabs-" + tabs.length}')
 <ul className={"nav nav-tabs " + ("nav-tabs-" + tabs.length)} />
 
 
+@NAME: line breaks when there are too many properties
+
+@INPUT:
+button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
+
+@EXPECTED:
+<button
+  className="navbar-toggle"
+  type="button"
+  data-toggle="collapse"
+  data-target="#navbar"
+  aria-expanded="false"
+  aria-controls="navbar"
+/>
+
+
+@NAME: multi line options
+
+@INPUT:
+div(options='{{ \
+  lineNum: true, \
+  theme: "monokai" }}')
+
+@EXPECTED:
+<div options={{ lineNum: true, theme: "monokai" }} />
+
+
 @NAME: use jsx expression
 
 @INPUT:

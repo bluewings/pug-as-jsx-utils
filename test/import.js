@@ -19,8 +19,10 @@ const tests = toTestArr(`
 describe('import', () => {
   tests.forEach(({ name, input, expected }) => {
     it(name, () => {
-      const output = pugToJsx(input).jsx;
-      output.should.be.eql(expected);
+      const { jsx, imports } = pugToJsx(input);
+      jsx.should.be.eql(expected);
+      imports.length.should.be.eql(1);
+      imports.map(e => e.name).should.containEql('styles');
     });
   });
 });
