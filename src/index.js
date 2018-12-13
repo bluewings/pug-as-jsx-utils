@@ -16,7 +16,11 @@ const jsxPrettierOptions = {
   jsxBracketSameLine: false,
 };
 
-const pugToJsx = (source) => {
+const analyzeJsxOptions = {
+  ignore: ['React'],
+};
+
+const pugToJsx = (source, options = {}) => {
   const localWorks = works.map(({ pre, post }) => ({ pre, post, context: {} }));
 
   // force at least two spaces between depths
@@ -26,8 +30,14 @@ const pugToJsx = (source) => {
     .join('\n')}\n`;
 
   // convert annotations to tags with preprocessing
-  const { lines, annot, imports } = pugCode.split(/\n/).reduce((dict, curr) => {
+  const {
+    lines, annot, imports, minIndent,
+  } = pugCode.split(/\n/).reduce((dict, curr) => {
     let stepBack = '';
+    const indent = Array(curr.search(/[^\s]/) + 1).join(' ');
+    if (curr.trim() && (dict.minIndent === null || indent.length < dict.minIndent)) {
+      dict.minIndent = indent.length;
+    }
     annotations.forEach((annotation) => {
       if (curr.match(annotation.pattern)) {
         const {
@@ -39,7 +49,6 @@ const pugToJsx = (source) => {
         if (startBlock || endBlock) {
           const content = { startBlock, endBlock };
           const key = hashCode(content);
-          const indent = Array(curr.search(/[^\s]/) + 1).join(' ');
           dict.lines.push(`${indent}annot_${key}`);
           dict.annot[key] = content;
           stepBack = ' ';
@@ -49,7 +58,10 @@ const pugToJsx = (source) => {
     });
     dict.lines.push(`${stepBack}${curr}`);
     return dict;
-  }, { lines: [], annot: {}, imports: [] });
+  }, {
+    lines: [], annot: {}, imports: [], minIndent: null,
+  });
+  pugCode = lines.map(e => e.substr(minIndent || 0)).join('\n');
 
   // pre-processing pug.render
   pugCode = localWorks
@@ -60,7 +72,7 @@ const pugToJsx = (source) => {
         return prev.replace(pattern, replaceFn);
       }
       return prev.replace(pattern, (...args) => replaceFn(context, ...args));
-    }, lines.join('\n'));
+    }, pugCode);
 
   // pug to html
   let jsxCode = `\n${pug.render(pugCode, { pretty: true })}\n`;
@@ -90,9 +102,14 @@ const pugToJsx = (source) => {
   } catch (err) {
     jsxCode = prettier.format(`<>${jsxCode}</>`, jsxPrettierOptions);
   }
-  const jsx = jsxCode.trim().replace(/(^;|;$)/g, '');
 
-  return { jsx, imports };
+  let result = { jsx: jsxCode.trim().replace(/(^;|;$)/g, ''), imports };
+
+  if (options.analyze) {
+    result = { ...result, ...analyzeJsx(result.jsx, analyzeJsxOptions) };
+  }
+
+  return result;
 };
 
 export {
