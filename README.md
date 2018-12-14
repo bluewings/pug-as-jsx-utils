@@ -8,7 +8,9 @@ const result = pugToJsx(`
     h1.greeting(onClick='{handleClick}')
       | Hello World, {name}!
 `, { analyze: true });
+```
 
+```js
 // result
 {
   "jsx": "<div>\n  <h1 className=\"greeting\" onClick={handleClick}>\n    Hello World, {name}!\n  </h1>\n</div>",
