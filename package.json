@@ -44,7 +44,9 @@
     "test": "mocha",
     "pretest": "npm run build",
     "build": "rollup -c",
-    "prebuild": "rm -rf dist/*"
+    "prebuild": "rm -rf dist/*",
+    "prepublishOnly": "npm test",
+    "prepare": "npm run build"
   },
   "files": [
     "src",
