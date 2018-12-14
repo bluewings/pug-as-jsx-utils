@@ -9,13 +9,6 @@ const result = pugToJsx(`
       | Hello World, {name}!
 `, { analyze: true });
 
-// result.jsx
-<div>
-  <h1 className="greeting" onClick={handleClick}>
-    Hello World, {name}!
-  </h1>
-</div>
-
 // result
 {
   "jsx": "<div>\n  <h1 className=\"greeting\" onClick={handleClick}>\n    Hello World, {name}!\n  </h1>\n</div>",
@@ -24,6 +17,28 @@ const result = pugToJsx(`
   "variables": [
     "handleClick",
     "name"
-  ]
+  ],
+  "jsxTemplate": "import React from 'react';\n\nexport default function(__params = {}) {\n  const { handleClick, name } = __params;\n  return (\n    <div>\n      <h1 className=\"greeting\" onClick={handleClick}>\n        Hello World, {name}!\n      </h1>\n    </div>\n);\n}\n"
+}
+
+// result.jsx
+<div>
+  <h1 className="greeting" onClick={handleClick}>
+    Hello World, {name}!
+  </h1>
+</div>
+
+// result.jsxTemplate
+import React from 'react';
+
+export default function(__params = {}) {
+  const { handleClick, name } = __params;
+  return (
+    <div>
+      <h1 className="greeting" onClick={handleClick}>
+        Hello World, {name}!
+      </h1>
+    </div>
+  );
 }
 ```
