@@ -7,7 +7,7 @@ const result = pugToJsx(`
   div
     h1.greeting(onClick='{handleClick}')
       | Hello World, {name}!
-`, { analyze: true });
+`, { template: true });
 ```
 
 ```js
