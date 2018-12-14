@@ -30,7 +30,7 @@ div
 ul.nav.nav-tabs(className='{"nav-tabs-" + tabs.length}')
 
 @EXPECTED:
-<ul className={"nav nav-tabs " + ("nav-tabs-" + tabs.length)} />
+<ul className={'nav nav-tabs ' + ('nav-tabs-' + tabs.length)} />
 
 
 @NAME: line breaks when there are too many properties
@@ -57,7 +57,7 @@ div(options='{{ \
   theme: "monokai" }}')
 
 @EXPECTED:
-<div options={{ lineNum: true, theme: "monokai" }} />
+<div options={{ lineNum: true, theme: 'monokai' }} />
 
 
 @NAME: use jsx expression

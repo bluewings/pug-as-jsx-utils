@@ -11,7 +11,7 @@ const tests = toTestArr(`
   h1.greeting hello world!
 
 @EXPECTED:
-<div className={"root " + styles.a}>
+<div className={'root ' + styles.a}>
   <h1 className="greeting">hello world!</h1>
 </div>
 `);

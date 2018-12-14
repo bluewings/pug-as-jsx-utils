@@ -41,17 +41,15 @@ div(@if='after.templates[0]')
     | {key} : {metric}
 
 @EXPECTED:
-{
-  after.templates[0] && (
-    <div>
-      {__macro.for((allTemplates.filter(e => e.id === after.templates[0])[0] || {}).metrics).map((metric, key) => (
-        <div key={key}>
-          {key} : {metric}
-        </div>
-      ))}
-    </div>
-  )
-}
+after.templates[0] && (
+  <div>
+    {__macro.for((allTemplates.filter(e => e.id === after.templates[0])[0] || {}).metrics).map((metric, key) => (
+      <div key={key}>
+        {key} : {metric}
+      </div>
+    ))}
+  </div>
+)
 
 
 @NAME: @repeat
@@ -111,8 +109,8 @@ div
 <div>
   {props.if && <span>hello</span>}
   {!props.unless && <span>unless</span>}
-  <span style={{ display: props.show ? "" : "none" }}>show</span>
-  <span style={{ display: props.hide ? "none" : "" }}>hide</span>
+  <span style={{ display: props.show ? '' : 'none' }}>show</span>
+  <span style={{ display: props.hide ? 'none' : '' }}>hide</span>
 </div>
 
 
@@ -129,8 +127,8 @@ div
 <div>
   {props.if < 1 && <span>hello</span>}
   {!(props.unless > 2) && <span>unless</span>}
-  <span style={{ display: 3 < show && show < 4 ? "" : "none" }}>show</span>
-  <span style={{ display: 4 <= hide && hide <= 5 ? "none" : "" }}>hide</span>
+  <span style={{ display: 3 < show && show < 4 ? '' : 'none' }}>show</span>
+  <span style={{ display: 4 <= hide && hide <= 5 ? 'none' : '' }}>hide</span>
 </div>
 `);
 

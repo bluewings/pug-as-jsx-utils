@@ -84,7 +84,7 @@ a.nav-link(href='#', onClick='{this.handleClick}')
 button.btn(className='{styles.btnAdAssets}' data-item-id='{item.id}')
 
 @EXPECTED:
-<button className={"btn " + styles.btnAdAssets} data-item-id={item.id} />
+<button className={'btn ' + styles.btnAdAssets} data-item-id={item.id} />
 
 
 @NAME: className conflict 4
@@ -97,7 +97,7 @@ button.btn.btn-default(type='button',
 
 @EXPECTED:
 <button
-  className={"btn btn-default " + classNames(styles.btnApply, { "btn-active": refValue && refValue !== fieldValue })}
+  className={'btn btn-default ' + classNames(styles.btnApply, { 'btn-active': refValue && refValue !== fieldValue })}
   type="button"
   disabled={!refValue || refValue === fieldValue}
   onClick={this.handleSyncClick}

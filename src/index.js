@@ -10,7 +10,7 @@ const jsxPrettierOptions = {
   tabWidth: 2,
   useTabs: false,
   semi: false,
-  singleQuote: false,
+  singleQuote: true,
   jsxSingleQuote: false,
   bracketSpacing: true,
   jsxBracketSameLine: false,
@@ -20,7 +20,7 @@ const analyzeJsxOptions = {
   ignore: ['React'],
 };
 
-const pugToJsx = (source, options = {}) => {
+const toJsx = (source, options = {}) => {
   const localWorks = works.map(({ pre, post }) => ({ pre, post, context: {} }));
 
   // force at least two spaces between depths
@@ -97,16 +97,60 @@ const pugToJsx = (source, options = {}) => {
       .replace(new RegExp(`</annot_${key}>`, 'g'), annot[key].endBlock.trim()),
     jsxCode);
 
+  // remove the outer brackets
+  jsxCode = jsxCode.replace(/^\s*{([\s\S]+)}\s*$/, '$1');
+
   try {
     jsxCode = prettier.format(jsxCode, jsxPrettierOptions);
   } catch (err) {
     jsxCode = prettier.format(`<>${jsxCode}</>`, jsxPrettierOptions);
   }
 
-  let result = { jsx: jsxCode.trim().replace(/(^;|;$)/g, ''), imports };
+  let result = {
+    jsx: jsxCode.trim().replace(/(^;|;$)/g, ''),
+    imports: imports.map(e => ({
+      ...e,
+      moduleName: e.moduleName.replace(/^(\.[a-zA-Z0-9]+)$/, '%BASENAME%$1'),
+    })),
+  };
 
   if (options.analyze) {
     result = { ...result, ...analyzeJsx(result.jsx, analyzeJsxOptions) };
+  }
+
+  return result;
+};
+
+const pugToJsx = (source, userOptions = {}) => {
+  const options = {
+    template: false,
+    analyze: false,
+    ...userOptions,
+  };
+
+  let result = toJsx(source, { analyze: options.template || options.analyze });
+
+  if (options.template) {
+    const jsxTemplate = [
+      "import React from 'react';",
+      result.imports.map(({ name, moduleName }) => `import ${name} from '${moduleName}';`),
+      '',
+      `export default function (${result.variables.length > 0 ? '__params = {}' : ''}) {`,
+      result.variables.length > 0 && (
+        `  const { ${result.variables.join(', ')} } = __params;`
+      ),
+      '  return (',
+      result.jsx,
+      '  );',
+      '}',
+    ].filter(e => e !== false).join('\n');
+    result = {
+      ...result,
+      jsxTemplate: prettier.format(jsxTemplate, {
+        ...jsxPrettierOptions,
+        semi: true,
+      }),
+    };
   }
 
   return result;
