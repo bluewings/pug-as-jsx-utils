@@ -140,7 +140,74 @@ const hashCode = (str) => {
   return hash;
 };
 
+function entries(object) {
+  return Object.keys(object).map(key => [key, object[key]]);
+}
+
+function values(object) {
+  return Object.keys(object).map(key => object[key]);
+}
+
+function gerResolveDict(resolveOpt = {}) {
+  const resolveDict = entries(resolveOpt).map(([moduleName, detail]) => {
+    const options = typeof detail === 'string' ? { name: detail } : detail;
+    let member = options.member || {};
+    if (Array.isArray(member)) {
+      member = member
+        .filter(memberName => memberName && typeof memberName === 'string')
+        .reduce((prev, memberName) => ({ ...prev, [memberName]: memberName }), {});
+    }
+    return {
+      ...options,
+      moduleName,
+      member: entries(member).reduce((prev, [alias, memberName]) => ({
+        ...prev,
+        [alias]: memberName && typeof memberName === 'string' ? memberName : alias,
+      }), {}),
+    };
+  });
+
+  return resolveDict.reduce((prev, { moduleName, name, member }) => {
+    const next = { ...prev };
+    if (name) {
+      next[name] = { moduleName, type: 'name', name };
+    }
+    entries(member).forEach(([alias, memberName]) => {
+      next[alias] = { moduleName, type: 'member', name: memberName };
+      if (alias !== memberName) {
+        next[alias].alias = alias;
+      }
+    });
+    return next;
+  }, {});
+}
+
+function getImports(variables, resolveOpt = {}) {
+  const resolveDict = gerResolveDict(resolveOpt);
+  const imports = variables.reduce((prev, each) => {
+    const matched = resolveDict[each];
+    if (!matched) {
+      return prev;
+    }
+    const item = prev[matched.moduleName] || { moduleName: matched.moduleName };
+    if (matched.type === 'name') {
+      item.name = matched.name;
+    }
+    if (matched.type === 'member') {
+      const newMember = { name: matched.name };
+      if (matched.alias) {
+        newMember.alias = matched.alias;
+      }
+      item.member = [...(item.member || []), newMember];
+    }
+    return { ...prev, [item.moduleName]: item };
+  }, {});
+
+  return values(imports);
+}
+
 export {
   analyzeJsx,
   hashCode,
+  getImports,
 };

@@ -125,6 +125,7 @@ const pugToJsx = (source, userOptions = {}) => {
   const options = {
     template: false,
     analyze: false,
+    resolve: {},
     ...userOptions,
   };
 
