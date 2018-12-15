@@ -1,6 +1,6 @@
 import pug from 'pug';
 import prettier from 'prettier';
-import { analyzeJsx, hashCode } from './lib/util';
+import { analyzeJsx, hashCode, getImports } from './lib/util';
 import works from './rules/works';
 import annotations from './rules/annotations';
 
@@ -31,7 +31,7 @@ const toJsx = (source, options = {}) => {
 
   // convert annotations to tags with preprocessing
   const {
-    lines, annot, imports, minIndent,
+    lines, annot, resolves, minIndent,
   } = pugCode.split(/\n/).reduce((dict, curr) => {
     let stepBack = '';
     const indent = Array(curr.search(/[^\s]/) + 1).join(' ');
@@ -41,10 +41,10 @@ const toJsx = (source, options = {}) => {
     annotations.forEach((annotation) => {
       if (curr.match(annotation.pattern)) {
         const {
-          startBlock, replacement, endBlock, import: importAs,
+          startBlock, replacement, endBlock, resolve,
         } = annotation.process(curr, annotation.pattern);
-        if (importAs) {
-          dict.imports.push(importAs);
+        if (resolve) {
+          dict.resolves = { ...dict.resolves, ...resolve };
         }
         if (startBlock || endBlock) {
           const content = { startBlock, endBlock };
@@ -59,8 +59,11 @@ const toJsx = (source, options = {}) => {
     dict.lines.push(`${stepBack}${curr}`);
     return dict;
   }, {
-    lines: [], annot: {}, imports: [], minIndent: null,
+    lines: [], annot: {}, resolves: {}, minIndent: null,
   });
+  if (!options.analyze && Object.keys(resolves).length > 0) {
+    options.analyze = true;
+  }
   pugCode = lines.map(e => e.substr(minIndent || 0)).join('\n');
 
   // pre-processing pug.render
@@ -106,16 +109,20 @@ const toJsx = (source, options = {}) => {
     jsxCode = prettier.format(`<>${jsxCode}</>`, jsxPrettierOptions);
   }
 
-  let result = {
-    jsx: jsxCode.trim().replace(/(^;|;$)/g, ''),
-    imports: imports.map(e => ({
-      ...e,
-      moduleName: e.moduleName.replace(/^(\.[a-zA-Z0-9]+)$/, '%BASENAME%$1'),
-    })),
-  };
-
+  let result = { jsx: jsxCode.trim().replace(/(^;|;$)/g, '') };
   if (options.analyze) {
-    result = { ...result, ...analyzeJsx(result.jsx, analyzeJsxOptions) };
+    const analyzed = analyzeJsx(result.jsx, analyzeJsxOptions);
+    const { used, imports } = getImports(analyzed.variables, resolves);
+    const variables = analyzed.variables.filter(e => used.indexOf(e) === -1);
+    result = {
+      ...result,
+      ...analyzed,
+      variables,
+      imports: imports.map(e => ({
+        ...e,
+        moduleName: e.moduleName.replace(/^(\.[a-zA-Z0-9]+)$/, '%BASENAME%$1'),
+      })),
+    };
   }
 
   return result;
@@ -134,7 +141,7 @@ const pugToJsx = (source, userOptions = {}) => {
   if (options.template) {
     const jsxTemplate = [
       "import React from 'react';",
-      result.imports.map(({ name, moduleName }) => `import ${name} from '${moduleName}';`),
+      (result.imports || []).map(({ name, moduleName }) => `import ${name} from '${moduleName}';`),
       '',
       `export default function (${result.variables.length > 0 ? '__params = {}' : ''}) {`,
       result.variables.length > 0 && (

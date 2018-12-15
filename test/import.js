@@ -19,8 +19,9 @@ const tests = toTestArr(`
 describe('import', () => {
   tests.forEach(({ name, input, expected }) => {
     it(name, () => {
-      const { jsx, imports } = pugToJsx(input);
+      const { jsx, imports, variables } = pugToJsx(input);
       jsx.should.be.eql(expected);
+      variables.length.should.be.eql(0);
       imports.length.should.be.eql(1);
       imports.map(e => e.name).should.containEql('styles');
     });

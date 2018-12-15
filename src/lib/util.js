@@ -184,11 +184,13 @@ function gerResolveDict(resolveOpt = {}) {
 
 function getImports(variables, resolveOpt = {}) {
   const resolveDict = gerResolveDict(resolveOpt);
-  const imports = variables.reduce((prev, each) => {
+  const { used, imports } = variables.reduce((prev, each) => {
     const matched = resolveDict[each];
     if (!matched) {
       return prev;
     }
+    const next = { ...prev };
+    next.used.push(each);
     const item = prev[matched.moduleName] || { moduleName: matched.moduleName };
     if (matched.type === 'name') {
       item.name = matched.name;
@@ -200,10 +202,13 @@ function getImports(variables, resolveOpt = {}) {
       }
       item.member = [...(item.member || []), newMember];
     }
-    return { ...prev, [item.moduleName]: item };
-  }, {});
+    return {
+      ...next,
+      imports: { ...next.imports, [item.moduleName]: item },
+    };
+  }, { used: [], imports: {} });
 
-  return values(imports);
+  return { used, imports: values(imports) };
 }
 
 export {

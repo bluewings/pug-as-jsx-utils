@@ -5,7 +5,7 @@ const annotations = [
     process: (current, pattern) => {
       const [, moduleName, name] = current.match(pattern);
       return {
-        import: { name, moduleName },
+        resolve: { [moduleName]: name },
         replacement: '',
       };
     },
