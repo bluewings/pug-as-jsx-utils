@@ -32,37 +32,32 @@ const toJsx = (source, options = {}) => {
     .join('\n')}\n`;
 
   // convert annotations to tags with preprocessing
-  const {
-    lines, annot, resolves, minIndent,
-  } = pugCode.split(/\n/).reduce((dict, curr) => {
-    let stepBack = '';
-    const indent = Array(curr.search(/[^\s]/) + 1).join(' ');
-    if (curr.trim() && (dict.minIndent === null || indent.length < dict.minIndent)) {
-      dict.minIndent = indent.length;
-    }
-    annotations.forEach((annotation) => {
-      if (curr.match(annotation.pattern)) {
-        const {
-          startBlock, replacement, endBlock, resolve,
-        } = annotation.process(curr, annotation.pattern);
-        if (resolve) {
-          dict.resolves = { ...dict.resolves, ...resolve };
+  const { lines, annot, resolves } = pugCode
+    .split(/\n/)
+    .reduce((dict, curr) => {
+      let stepBack = '';
+      const indent = Array(curr.search(/[^\s]/) + 1).join(' ');
+      annotations.forEach((annotation) => {
+        if (curr.match(annotation.pattern)) {
+          const {
+            startBlock, replacement, endBlock, resolve,
+          } = annotation.process(curr, annotation.pattern);
+          if (resolve) {
+            dict.resolves = { ...dict.resolves, ...resolve };
+          }
+          if (startBlock || endBlock) {
+            const content = { startBlock, endBlock };
+            const key = hashCode(content);
+            dict.lines.push(`${indent}annot_${key}`);
+            dict.annot[key] = content;
+            stepBack = ' ';
+          }
+          curr = replacement;
         }
-        if (startBlock || endBlock) {
-          const content = { startBlock, endBlock };
-          const key = hashCode(content);
-          dict.lines.push(`${indent}annot_${key}`);
-          dict.annot[key] = content;
-          stepBack = ' ';
-        }
-        curr = replacement;
-      }
-    });
-    dict.lines.push(`${stepBack}${curr}`);
-    return dict;
-  }, {
-    lines: [], annot: {}, resolves: {}, minIndent: null,
-  });
+      });
+      dict.lines.push(`${stepBack}${curr}`);
+      return dict;
+    }, { lines: [], annot: {}, resolves: { ...options.resolve } });
   if (!options.analyze && Object.keys(resolves).length > 0) {
     options.analyze = true;
   }
@@ -138,17 +133,24 @@ const pugToJsx = (source, userOptions = {}) => {
     ...userOptions,
   };
 
-  let result = toJsx(source, { analyze: options.template || options.analyze });
+  let result = toJsx(source, {
+    ...options,
+    analyze: options.template || options.analyze,
+  });
 
   if (options.template) {
     const jsxTemplate = [
       "import React from 'react';",
-      (result.imports || []).map(({ name, moduleName }) => `import ${name} from '${moduleName}';`),
+      ...(result.imports || []).map(({ name, member, moduleName }) => {
+        const chunk = [
+          name,
+          member && member.length > 0 && `{ ${member.map(e => (e.alias ? `${e.name} as ${e.alias}` : e.name)).join(', ')} }`,
+        ].filter(e => e).join(', ');
+        return `import ${chunk} from '${moduleName}';`;
+      }),
       '',
       `export default function (${result.variables.length > 0 ? '__params = {}' : ''}) {`,
-      result.variables.length > 0 && (
-        `  const { ${result.variables.join(', ')} } = __params;`
-      ),
+      result.variables.length > 0 && `  const { ${result.variables.join(', ')} } = __params;`,
       '  return (',
       result.jsx,
       '  );',

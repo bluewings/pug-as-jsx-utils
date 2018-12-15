@@ -204,7 +204,10 @@ function getImports(variables, resolveOpt = {}) {
     }
     return {
       ...next,
-      imports: { ...next.imports, [item.moduleName]: item },
+      imports: {
+        ...next.imports,
+        [item.moduleName]: { ...(next.imports[item.moduleName] || {}), ...item },
+      },
     };
   }, { used: [], imports: {} });
 
