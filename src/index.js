@@ -1,6 +1,8 @@
 import pug from 'pug';
 import prettier from 'prettier';
-import { analyzeJsx, hashCode, getImports } from './lib/util';
+import {
+  analyzeJsx, hashCode, getImports, removeIndent,
+} from './lib/util';
 import works from './rules/works';
 import annotations from './rules/annotations';
 
@@ -64,7 +66,7 @@ const toJsx = (source, options = {}) => {
   if (!options.analyze && Object.keys(resolves).length > 0) {
     options.analyze = true;
   }
-  pugCode = lines.map(e => e.substr(minIndent || 0)).join('\n');
+  pugCode = removeIndent(lines.join('\n'));
 
   // pre-processing pug.render
   pugCode = localWorks
@@ -104,7 +106,7 @@ const toJsx = (source, options = {}) => {
   jsxCode = jsxCode.replace(/^\s*{([\s\S]+)}\s*$/, '$1');
 
   try {
-    jsxCode = prettier.format(jsxCode, jsxPrettierOptions);
+    jsxCode = prettier.format(`(${jsxCode})`, jsxPrettierOptions);
   } catch (err) {
     jsxCode = prettier.format(`<>${jsxCode}</>`, jsxPrettierOptions);
   }
@@ -167,4 +169,5 @@ const pugToJsx = (source, userOptions = {}) => {
 export {
   pugToJsx,
   analyzeJsx,
+  removeIndent,
 };

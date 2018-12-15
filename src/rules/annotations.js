@@ -1,7 +1,7 @@
 const annotations = [
   // imports
   {
-    pattern: /^\/\/\s+@import\s+([^\s]+)\s+=>\s+([^\s]+)$/,
+    pattern: /^\s*\/\/\s+@import\s+([^\s]+)\s+=>\s+([^\s]+)$/,
     process: (current, pattern) => {
       const [, moduleName, name] = current.match(pattern);
       return {

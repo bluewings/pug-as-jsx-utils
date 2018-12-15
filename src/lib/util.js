@@ -211,8 +211,21 @@ function getImports(variables, resolveOpt = {}) {
   return { used, imports: values(imports) };
 }
 
+function removeIndent(source) {
+  const lines = source.split(/\n/);
+  const minIndent = lines.reduce((indentSize, curr) => {
+    const indent = Array(curr.search(/[^\s]/) + 1).join(' ');
+    if (curr.trim() && (indentSize === null || indent.length < indentSize)) {
+      return indent.length;
+    }
+    return indentSize;
+  }, null);
+  return lines.map(e => e.substr(minIndent || 0)).join('\n').trim();
+}
+
 export {
   analyzeJsx,
   hashCode,
   getImports,
+  removeIndent,
 };
