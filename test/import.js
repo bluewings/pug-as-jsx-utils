@@ -2,7 +2,7 @@ require('should');
 const { pugToJsx, removeIndent } = require('..');
 
 describe('@import css', () => {
-  it('@import css2', () => {
+  it('@import css', () => {
     const { jsx, imports, variables } = pugToJsx(`
     // @import .scss => styles
     .root(className='{styles.root}')
