@@ -1,7 +1,7 @@
 import pug from 'pug';
 import prettier from 'prettier';
 import {
-  analyzeJsx, hashCode, getImports, removeIndent,
+  analyzeJsx, hashCode, getImports, removeIndent, removePugComment,
 } from './lib/util';
 import works from './rules/works';
 import annotations from './rules/annotations';
@@ -30,6 +30,8 @@ const toJsx = (source, options = {}) => {
     .map(e => e.replace(/^(\t*)/, (whole, p1) => p1.replace(/\t/g, '  ')))
     .map(e => e.replace(/^(\s*)/, (whole, p1) => p1.replace(/\s/g, '  ')))
     .join('\n')}\n`;
+  pugCode = removeIndent(pugCode);
+  pugCode = removePugComment(pugCode);
 
   // convert annotations to tags with preprocessing
   const { lines, annot, resolves } = pugCode

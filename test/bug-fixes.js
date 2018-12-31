@@ -102,6 +102,32 @@ button.btn.btn-default(type='button',
   disabled={!refValue || refValue === fieldValue}
   onClick={this.handleSyncClick}
 />
+
+@NAME: commented annotations
+
+@INPUT:
+div
+  div(@for='(error, key, i) in errors')
+    hr(@if='i > 0')
+    div {error.keyword}
+    a(@for='item in error.items', href='') {item.dataPath}
+    //- span(@for='item in error.items')
+      a(className='{styles.item}', href='', onClick='{handleClick.bind(this, item.jsonPath)}')
+
+@EXPECTED:
+<div>
+  {__macro.for(errors).map((error, key, i) => (
+    <div key={key}>
+      {i > 0 && <hr />}
+      <div>{error.keyword}</div>
+      {__macro.for(error.items).map((item, i) => (
+        <a key={i} href="">
+          {item.dataPath}
+        </a>
+      ))}
+    </div>
+  ))}
+</div>
 `);
 
 describe('bug-fixes', () => {

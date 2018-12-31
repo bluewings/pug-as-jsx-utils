@@ -226,9 +226,29 @@ function removeIndent(source) {
   return lines.map(e => e.substr(minIndent || 0)).join('\n').trim();
 }
 
+function removePugComment(pugCode) {
+  return pugCode.split(/\n/).reduce((prev, curr) => {
+    const indentSize = curr.match(/^\s*/)[0].length;
+    if (prev.commentIndentSize !== null && prev.commentIndentSize < indentSize) {
+      return prev;
+    }
+
+    const hasCommentSymbol = !!curr.match(/^\s*\/\//) && !curr.match(/^\/\/\s+@/);
+    if (hasCommentSymbol) {
+      return { ...prev, commentIndentSize: indentSize };
+    }
+
+    return {
+      commentIndentSize: null,
+      lines: [...prev.lines, curr],
+    };
+  }, { commentIndentSize: null, lines: [] }).lines.join('\n');
+}
+
 export {
   analyzeJsx,
   hashCode,
   getImports,
   removeIndent,
+  removePugComment,
 };
