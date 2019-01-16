@@ -103,6 +103,7 @@ button.btn.btn-default(type='button',
   onClick={this.handleSyncClick}
 />
 
+
 @NAME: commented annotations
 
 @INPUT:
@@ -129,6 +130,7 @@ div
   ))}
 </div>
 
+
 @NAME: duplicate attribute
 
 @INPUT:
@@ -145,6 +147,7 @@ div
     </Item>
   ))}
 </div>
+
 
 @NAME: multi-line contents
 
@@ -169,6 +172,23 @@ h6.modal-title
     </Fragment>
   )}
 </h6>
+
+
+@NAME: annotation w\\ double quotes
+
+@INPUT:
+div
+  div.media-body(@if="displayName")
+    span.mt-0 { displayName }
+
+@EXPECTED:
+<div>
+  {displayName && (
+    <div className="media-body">
+      <span className="mt-0">{displayName}</span>
+    </div>
+  )}
+</div>
 `);
 
 describe('bug-fixes', () => {
