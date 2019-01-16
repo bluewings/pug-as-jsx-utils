@@ -1,7 +1,7 @@
 import pug from 'pug';
 import prettier from 'prettier';
 import {
-  analyzeJsx, hashCode, getImports, removeIndent, removePugComment,
+  analyzeJsx, hashCode, getImports, removeDupAttrs, removeIndent, removePugComment,
 } from './lib/util';
 import works from './rules/works';
 import annotations from './rules/annotations';
@@ -75,6 +75,9 @@ const toJsx = (source, options = {}) => {
       }
       return prev.replace(pattern, (...args) => replaceFn(context, ...args));
     }, pugCode);
+
+  // remove duplicate attributes
+  pugCode = removeDupAttrs(pugCode);
 
   // pug to html
   let jsxCode = `\n${pug.render(pugCode, { pretty: true })}\n`;

@@ -128,6 +128,23 @@ div
     </div>
   ))}
 </div>
+
+@NAME: duplicate attribute
+
+@INPUT:
+div
+  Item(@for='(item, key, i) in items',
+    key='{item._key}')
+    h1.greeting Hello World
+
+@EXPECTED:
+<div>
+  {__macro.for(items).map((item, key, i) => (
+    <Item key={item._key}>
+      <h1 className="greeting">Hello World</h1>
+    </Item>
+  ))}
+</div>
 `);
 
 describe('bug-fixes', () => {

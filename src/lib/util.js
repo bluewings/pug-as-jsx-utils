@@ -214,6 +214,33 @@ function getImports(variables, resolveOpt = {}) {
   return { used, imports: values(imports) };
 }
 
+function removeDupAttrs(pugCode) {
+  return pugCode.replace(/\(([^()]{0,}?)\)/g, (whole, p1) => {
+    const matched = ` ${p1.replace(/\n/g, ' ')}`.match(/[a-zA-Z0-9_-]+(='.*?'){1,}/g);
+    if (!matched) {
+      return whole;
+    }
+    const attrs = matched
+      .map((e) => {
+        const [key, ...rest] = e.split('=');
+        const value = rest.join('=');
+        return { key, value };
+      })
+      .reduce((prev, { key, value }) => {
+        const next = { ...prev };
+        if (next[key]) {
+          delete next[key];
+        }
+        return { ...next, [key]: value };
+      }, {});
+
+    const replacement = Object.entries(attrs)
+      .map(([k, v]) => (v ? `${k}=${v}` : k))
+      .join(', ');
+    return `(${replacement})`;
+  });
+}
+
 function removeIndent(source) {
   const lines = source.split(/\n/);
   const minIndent = lines.reduce((indentSize, curr) => {
@@ -249,6 +276,7 @@ export {
   analyzeJsx,
   hashCode,
   getImports,
+  removeDupAttrs,
   removeIndent,
   removePugComment,
 };
