@@ -189,6 +189,18 @@ div
     </div>
   )}
 </div>
+
+
+@NAME: PascalCase className
+
+@INPUT:
+.SchemaForm(className='{schemaFormStyle}', ref='{wrapEl => this.wrapEl = wrapEl}')
+  Container
+
+@EXPECTED:
+<div className={'SchemaForm ' + schemaFormStyle} ref={wrapEl => (this.wrapEl = wrapEl)}>
+  <Container />
+</div>
 `);
 
 describe('bug-fixes', () => {

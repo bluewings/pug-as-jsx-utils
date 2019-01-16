@@ -34,7 +34,7 @@ const works = [
   // use nested components
   // eg. Modal.Body
   {
-    pre: [/\.([A-Z])/g, (context, whole, p1) => `___dot_btw_cpnts___${p1}`],
+    pre: [/([a-zA-Z0-9])\.([A-Z])/g, (context, whole, p1, p2) => `${p1}___dot_btw_cpnts___${p2}`],
     post: [/___dot_btw_cpnts___/g, '.'],
   },
 
