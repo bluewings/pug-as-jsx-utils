@@ -145,6 +145,30 @@ div
     </Item>
   ))}
 </div>
+
+@NAME: multi-line contents
+
+@INPUT:
+h6.modal-title
+  Fragment(@if='mutation')
+    | {intl('common.message.handleEntity', {
+    |   mutation: intl("common.mutationType." + mutation),
+    |   entity: intl("common.term." + entity),
+    |   name: data && data.name,
+    | })}
+
+@EXPECTED:
+<h6 className="modal-title">
+  {mutation && (
+    <Fragment>
+      {intl('common.message.handleEntity', {
+        mutation: intl('common.mutationType.' + mutation),
+        entity: intl('common.term.' + entity),
+        name: data && data.name
+      })}
+    </Fragment>
+  )}
+</h6>
 `);
 
 describe('bug-fixes', () => {
