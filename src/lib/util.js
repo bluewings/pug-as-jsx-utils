@@ -1,4 +1,5 @@
 import jsc from 'jscodeshift';
+import prettier from 'prettier';
 
 const reservedWords = ['JSON'];
 const isReactElement = node => node.parent.parent.node.type === 'JSXElement' && node.node.name.search(/^[a-z]/) === 0;
@@ -240,27 +241,27 @@ function getUsage({ useThis, variables }) {
     "import template from './%BASENAME%.pug';",
     '',
     'class Sample extends React.Component {',
-    ' render() {',
+    '  render() {',
   ];
 
   if (variables.length === 0) {
     examples = [
       ...examples,
-      '   return template();',
+      '    return template();',
     ];
   } else {
     if (params.length > 0) {
       examples = [
         ...examples,
-        '   const {',
+        '    const {',
         `      ${params.join(', ')}`,
-        '   } = this;',
+        '    } = this;',
         '',
       ];
     }
     examples = [
       ...examples,
-      useThis ? '   return template.call(this, {' : '   return template({',
+      useThis ? '    return template.call(this, {' : '    return template({',
     ];
     if (params.length > 0) {
       examples = [
@@ -278,16 +279,26 @@ function getUsage({ useThis, variables }) {
     }
     examples = [
       ...examples,
-      '   });',
+      '    });',
     ];
   }
   examples = [
     ...examples,
-    ' }',
+    '  }',
     '}',
   ];
 
-  return examples.join('\n');
+  return prettier.format(examples.join('\n'), {
+    parser: 'babylon',
+    printWidth: 120,
+    tabWidth: 2,
+    useTabs: false,
+    semi: true,
+    singleQuote: true,
+    jsxSingleQuote: false,
+    bracketSpacing: true,
+    jsxBracketSameLine: false,
+  });
 }
 
 function removeDupAttrs(pugCode) {
