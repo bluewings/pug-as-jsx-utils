@@ -169,10 +169,7 @@ const pugToJsx = (source, userOptions = {}) => {
         ...jsxPrettierOptions,
         semi: true,
       }),
-      usage: prettier.format(getUsage(result), {
-        trailingComma: 'es5',
-        singleQuote: true,
-      }),
+      usage: getUsage(result),
     };
   }
 

@@ -298,6 +298,7 @@ function getUsage({ useThis, variables }) {
     jsxSingleQuote: false,
     bracketSpacing: true,
     jsxBracketSameLine: false,
+    trailingComma: 'es5',
   });
 }
 
