@@ -201,6 +201,24 @@ div
 <div className={'SchemaForm ' + schemaFormStyle} ref={wrapEl => (this.wrapEl = wrapEl)}>
   <Container />
 </div>
+
+
+@NAME: commented block
+
+@INPUT:
+div
+  //- commented out
+    .should-not-be-visible
+
+    .should-not-be-visible
+
+  //- commented out
+  .should-be-visible
+
+@EXPECTED:
+<div>
+  <div className="should-be-visible" />
+</div>
 `);
 
 describe('bug-fixes', () => {

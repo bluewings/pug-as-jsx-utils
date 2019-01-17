@@ -344,7 +344,7 @@ function removeIndent(source) {
 function removePugComment(pugCode) {
   return pugCode.split(/\n/).reduce((prev, curr) => {
     const indentSize = curr.match(/^\s*/)[0].length;
-    if (prev.commentIndentSize !== null && prev.commentIndentSize < indentSize) {
+    if (prev.commentIndentSize !== null && (prev.commentIndentSize < indentSize || curr.trim() === '')) {
       return prev;
     }
 
