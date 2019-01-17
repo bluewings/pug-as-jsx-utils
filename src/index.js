@@ -1,7 +1,7 @@
 import pug from 'pug';
 import prettier from 'prettier';
 import {
-  analyzeJsx, hashCode, getImports, removeDupAttrs, removeIndent, removePugComment,
+  analyzeJsx, hashCode, getImports, getUsage, removeDupAttrs, removeIndent, removePugComment,
 } from './lib/util';
 import template from './lib/template';
 import works from './rules/works';
@@ -168,6 +168,10 @@ const pugToJsx = (source, userOptions = {}) => {
       jsxTemplate: prettier.format(jsxTemplate, {
         ...jsxPrettierOptions,
         semi: true,
+      }),
+      usage: prettier.format(getUsage(result), {
+        trailingComma: 'es5',
+        singleQuote: true,
       }),
     };
   }

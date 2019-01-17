@@ -216,6 +216,80 @@ function getImports(variables, resolveOpt = {}) {
   return { used, imports: values(imports) };
 }
 
+
+function getUsage({ useThis, variables }) {
+  const { components, params } = variables.reduce((prev, e) => {
+    if (e.search(/^[A-Z]/) === -1) {
+      return { ...prev, params: [...prev.params, e] };
+    }
+    return { ...prev, components: [...prev.components, e] };
+  }, { components: [], params: [] });
+
+  let examples = [];
+  if (components.length > 0) {
+    examples = [
+      '// components',
+      ...components.map(e => `import ${e} from '__modulePath__/${e}';`),
+      '',
+    ];
+  }
+
+  examples = [
+    ...examples,
+    '// jsx',
+    "import template from './%BASENAME%.pug';",
+    '',
+    'class Sample extends React.Component {',
+    ' render() {',
+  ];
+
+  if (variables.length === 0) {
+    examples = [
+      ...examples,
+      '   return template();',
+    ];
+  } else {
+    if (params.length > 0) {
+      examples = [
+        ...examples,
+        '   const {',
+        `      ${params.join(', ')}`,
+        '   } = this;',
+        '',
+      ];
+    }
+    examples = [
+      ...examples,
+      useThis ? '   return template.call(this, {' : '   return template({',
+    ];
+    if (params.length > 0) {
+      examples = [
+        ...examples,
+        '      // variables',
+        `      ${params.join(', ')},`,
+      ];
+    }
+    if (components.length > 0) {
+      examples = [
+        ...examples,
+        '      // components',
+        `      ${components.join(', ')},`,
+      ];
+    }
+    examples = [
+      ...examples,
+      '   });',
+    ];
+  }
+  examples = [
+    ...examples,
+    ' }',
+    '}',
+  ];
+
+  return examples.join('\n');
+}
+
 function removeDupAttrs(pugCode) {
   return pugCode.replace(/\(([^()]{0,}?)\)/g, (whole, p1) => {
     const matched = ` ${p1.replace(/\n/g, ' ')}`.match(/[a-zA-Z0-9_-]+(='.*?'){1,}/g);
@@ -278,6 +352,7 @@ export {
   analyzeJsx,
   hashCode,
   getImports,
+  getUsage,
   removeDupAttrs,
   removeIndent,
   removePugComment,
