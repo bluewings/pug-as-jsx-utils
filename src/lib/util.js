@@ -111,10 +111,12 @@ const analyzeJsx = (jsxOutput, options = {}) => {
     .forEach((p) => {
       variables = [...variables, p.node.name];
     });
+  variables = arrayUnique(variables.filter(e => varsToIgnore.indexOf(e) === -1)).sort();
 
   return {
     useThis,
-    variables: arrayUnique(variables.filter(e => varsToIgnore.indexOf(e) === -1)).sort(),
+    useMacro: !!variables.find(e => e === '__macro'),
+    variables: variables.filter(e => e !== '__macro'),
   };
 };
 

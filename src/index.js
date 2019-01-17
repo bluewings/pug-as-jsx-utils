@@ -3,6 +3,7 @@ import prettier from 'prettier';
 import {
   analyzeJsx, hashCode, getImports, removeDupAttrs, removeIndent, removePugComment,
 } from './lib/util';
+import template from './lib/template';
 import works from './rules/works';
 import annotations from './rules/annotations';
 
@@ -154,6 +155,7 @@ const pugToJsx = (source, userOptions = {}) => {
         return `import ${chunk} from '${moduleName}';`;
       }),
       '',
+      result.useMacro && template.macro,
       `export default function (${result.variables.length > 0 ? '__params = {}' : ''}) {`,
       result.variables.length > 0 && `  const { ${result.variables.join(', ')} } = __params;`,
       '  return (',
