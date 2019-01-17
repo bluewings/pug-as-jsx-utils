@@ -220,10 +220,10 @@ function getImports(variables, resolveOpt = {}) {
 
 function getUsage({ useThis, variables }) {
   const { components, params } = variables.reduce((prev, e) => {
-    if (e.search(/^[A-Z]/) === -1) {
-      return { ...prev, params: [...prev.params, e] };
+    if (e.search(/^[A-Z]/) === 0 && e.search(/[a-z]/) !== -1) {
+      return { ...prev, components: [...prev.components, e] };
     }
-    return { ...prev, components: [...prev.components, e] };
+    return { ...prev, params: [...prev.params, e] };
   }, { components: [], params: [] });
 
   let examples = [];
