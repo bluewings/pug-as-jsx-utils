@@ -107,6 +107,10 @@ const analyzeJsx = (jsxOutput, options = {}) => {
       ) {
         return false;
       }
+      // exclude object key
+      if (p.parent.node.type === 'Property' && p.parent.node.key === p.node) {
+        return false;
+      }
       return true;
     })
     .forEach((p) => {

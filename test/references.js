@@ -49,4 +49,13 @@ describe('variables and components', () => {
     // components count === 1
     variables.filter(e => e.search(/^[A-Z]/) === 0).length.should.be.eql(1);
   });
+
+  it('ignore object key 2', () => {
+    const { variables } = pugToJsx(`
+    div(className='{ isEdit ? "input-group-plaintext" : ""}')
+      input.form-control(type='number', style='{ isEdit ? { "paddingBottom": 15 } : {} }')
+    `, { analyze: true });
+    variables.length.should.be.eql(1);
+    variables.should.containEql('isEdit');
+  });
 });
