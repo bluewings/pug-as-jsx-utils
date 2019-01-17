@@ -125,7 +125,8 @@ const analyzeJsx = (jsxOutput, options = {}) => {
   return {
     useThis,
     useMacro: !!variables.find(e => e === '__macro'),
-    variables: variables.filter(e => e !== '__macro'),
+    useFragment: !!variables.find(e => e === 'Fragment'),
+    variables: variables.filter(e => ['__macro', 'Fragment'].indexOf(e) === -1),
   };
 };
 

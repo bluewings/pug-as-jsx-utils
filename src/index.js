@@ -146,7 +146,7 @@ const pugToJsx = (source, userOptions = {}) => {
 
   if (options.template) {
     const jsxTemplate = [
-      "import React from 'react';",
+      result.useFragment ? "import React, { Fragment } from 'react';" : "import React from 'react';",
       ...(result.imports || []).map(({ name, member, moduleName }) => {
         const chunk = [
           name,
