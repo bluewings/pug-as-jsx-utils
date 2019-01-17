@@ -1,7 +1,11 @@
 import jsc from 'jscodeshift';
 import prettier from 'prettier';
 
-const reservedWords = ['JSON'];
+const reservedWords = [
+  'Object', 'String', 'Number', 'Array',
+  'JSON', 'Math', 'null',
+];
+
 const isReactElement = node => node.parent.parent.node.type === 'JSXElement' && node.node.name.search(/^[a-z]/) === 0;
 const arrayUnique = myArray => myArray.filter((v, i, a) => a.indexOf(v) === i);
 const analyzeJsx = (jsxOutput, options = {}) => {
@@ -308,7 +312,7 @@ function getUsage({ useThis, variables }) {
 
 function removeDupAttrs(pugCode) {
   return pugCode.replace(/\(([^()]{0,}?)\)/g, (whole, p1) => {
-    const matched = ` ${p1.replace(/\n/g, ' ')}`.match(/[a-zA-Z0-9_-]+(='.*?'){1,}/g);
+    const matched = ` ${p1.replace(/\n/g, ' ')}`.match(/[a-zA-Z0-9_-]+(\s*=\s*'.*?'){1,}/g);
     if (!matched) {
       return whole;
     }

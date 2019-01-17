@@ -219,6 +219,18 @@ div
 <div>
   <div className="should-be-visible" />
 </div>
+
+
+@NAME: using space within an attr assignment
+
+@INPUT:
+input(type='text',
+  readOnly= '{false}',
+  disabled ='{false}',
+  value='{value}')
+
+@EXPECTED:
+<input type="text" readOnly={false} disabled={false} value={value} />
 `);
 
 describe('bug-fixes', () => {
