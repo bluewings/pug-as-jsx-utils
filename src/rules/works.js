@@ -19,7 +19,8 @@ const works = [
       (context, whole, p1) => {
         const content = p1
           .replace(/^\{(.*)\}$/, '$1')
-          .replace(/\n\s+\|\s+/g, ' ');
+          .replace(/\n\s+\|\s+/g, ' ')
+          .replace(/\\\n\s+/g, ' ');
         const key = hashCode(content);
         context[key] = content;
         return `{__archived_${key}__}`;

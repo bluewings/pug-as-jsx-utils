@@ -231,6 +231,29 @@ input(type='text',
 
 @EXPECTED:
 <input type="text" readOnly={false} disabled={false} value={value} />
+
+
+@NAME: using a backslash at the end of a line
+
+@INPUT:
+p
+  i.fa.fa-fw(className='{ \\
+    (browser.name.search(/^ie$/i) !== -1 ? "fa-internet-explorer" : "") + \\
+    (browser.name.search(/chrome/i) !== -1 ? "fa-chrome" : "") \\
+  }')
+  | {browser.name}
+
+@EXPECTED:
+<p>
+  <i
+    className={
+      'fa fa-fw ' +
+      ((browser.name.search(/^ie$/i) !== -1 ? 'fa-internet-explorer' : '') +
+        (browser.name.search(/chrome/i) !== -1 ? 'fa-chrome' : ''))
+    }
+  />
+  {browser.name}
+</p>
 `);
 
 describe('bug-fixes', () => {
