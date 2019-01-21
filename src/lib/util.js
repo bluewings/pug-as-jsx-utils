@@ -298,7 +298,7 @@ function getUsage({ useThis, variables }) {
   ];
 
   return prettier.format(examples.join('\n'), {
-    parser: 'babylon',
+    parser: 'babel',
     printWidth: 120,
     tabWidth: 2,
     useTabs: false,

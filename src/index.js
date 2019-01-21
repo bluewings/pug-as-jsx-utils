@@ -8,7 +8,7 @@ import works from './rules/works';
 import annotations from './rules/annotations';
 
 const jsxPrettierOptions = {
-  parser: 'babylon',
+  parser: 'babel',
   printWidth: 120,
   tabWidth: 2,
   useTabs: false,
