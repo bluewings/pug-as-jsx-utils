@@ -254,6 +254,33 @@ p
   />
   {browser.name}
 </p>
+
+
+@NAME: capital letters in the first letter of the className
+
+@INPUT:
+.App
+  header.App-header
+    img.App-logo(src='{logo}', alt='logo')
+    p
+      | Edit&nbsp;
+      code src/App.js
+      | &nbsp;and save to reload.
+    a.App-link(href='https://reactjs.org', target='_blank', rel='noopener noreferrer')
+      | Learn React
+
+@EXPECTED:
+<div className="App">
+  <header className="App-header">
+    <img className="App-logo" src={logo} alt="logo" />
+    <p>
+      Edit&nbsp;<code>src/App.js</code>&nbsp;and save to reload.
+    </p>
+    <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
+      Learn React
+    </a>
+  </header>
+</div>
 `);
 
 describe('bug-fixes', () => {

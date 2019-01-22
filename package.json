@@ -1,6 +1,6 @@
 {
   "name": "pug-as-jsx-utils",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "main": "dist/pug-as-jsx-utils.cjs.js",
   "module": "dist/pug-as-jsx-utils.es.js",
   "jsnext:main": "dist/pug-as-jsx-utils.es.js",
@@ -33,7 +33,7 @@
     "eslint-plugin-react": "^7.12.4",
     "mocha": "^5.2.0",
     "pug": "^2.0.3",
-    "rollup": "^1.1.1",
+    "rollup": "^1.1.2",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-node-resolve": "^4.0.0",
