@@ -377,7 +377,7 @@ function babelTransform(src, filename = '') {
     jsCode = jsCode.replace(/%BASENAME%/g, `./${basename}`);
   }
   const { code } = babel.transformSync(jsCode, {
-    presets: ['@babel/preset-env', '@babel/preset-react'],
+    presets: ['@babel/preset-react'],
   });
   return code;
 }
