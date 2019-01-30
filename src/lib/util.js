@@ -1,5 +1,6 @@
 import jsc from 'jscodeshift';
 import prettier from 'prettier';
+import babel from '@babel/core';
 
 const reservedWords = [
   'Object', 'String', 'Number', 'Array',
@@ -369,6 +370,18 @@ function removePugComment(pugCode) {
   }, { commentIndentSize: null, lines: [] }).lines.join('\n');
 }
 
+function babelTransform(src, filename = '') {
+  let jsCode = src;
+  if (filename) {
+    const basename = filename.split('/').pop().replace(/\.[a-zA-Z0-9]+$/, '');
+    jsCode = jsCode.replace(/%BASENAME%/g, `./${basename}`);
+  }
+  const { code } = babel.transformSync(jsCode, {
+    presets: ['@babel/preset-env', '@babel/preset-react'],
+  });
+  return code;
+}
+
 export {
   analyzeJsx,
   hashCode,
@@ -377,4 +390,5 @@ export {
   removeDupAttrs,
   removeIndent,
   removePugComment,
+  babelTransform,
 };

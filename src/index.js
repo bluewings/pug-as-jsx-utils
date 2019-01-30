@@ -1,7 +1,7 @@
 import pug from 'pug';
 import prettier from 'prettier';
 import {
-  analyzeJsx, hashCode, getImports, getUsage, removeDupAttrs, removeIndent, removePugComment,
+  analyzeJsx, hashCode, getImports, getUsage, removeDupAttrs, removeIndent, removePugComment, babelTransform,
 } from './lib/util';
 import template from './lib/template';
 import works from './rules/works';
@@ -180,4 +180,5 @@ export {
   pugToJsx,
   analyzeJsx,
   removeIndent,
+  babelTransform,
 };
