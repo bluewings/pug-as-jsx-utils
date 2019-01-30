@@ -49,4 +49,29 @@ describe('@import css', () => {
     });
     jsxTemplate.trim().should.be.eql(expected);
   });
+
+  it('resolve module', () => {
+    const input = `
+    // @import .module.scss => styles
+    .root(className='{styles.root}') Hello World
+    `;
+    const expected = removeIndent(`
+    import React from 'react';
+    import styles from '%BASENAME%.module.scss';
+    
+    export default function() {
+      return <div className={'root ' + styles.root}>Hello World</div>;
+    }
+    `);
+    const { jsxTemplate } = pugToJsx(input, {
+      resolve: {
+        classnames: 'cx',
+        'react-intl': {
+          member: { Intl: 'FormattedMessage' },
+        },
+      },
+      template: true,
+    });
+    jsxTemplate.trim().should.be.eql(expected);
+  });
 });

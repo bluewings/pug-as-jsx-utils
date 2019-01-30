@@ -123,7 +123,7 @@ const toJsx = (source, options = {}) => {
       variables,
       imports: imports.map(e => ({
         ...e,
-        moduleName: e.moduleName.replace(/^(\.[a-zA-Z0-9]+)$/, '%BASENAME%$1'),
+        moduleName: e.moduleName.replace(/^(\.[a-zA-Z0-9.]+)$/, '%BASENAME%$1'),
       })),
     };
   }
