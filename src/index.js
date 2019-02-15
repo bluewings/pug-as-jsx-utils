@@ -27,7 +27,7 @@ const toJsx = (source, options = {}) => {
   const localWorks = works.map(({ pre, post }) => ({ pre, post, context: {} }));
 
   // force at least two spaces between depths
-  let pugCode = `\n${source.split(/\n/)
+  let pugCode = `\n${source.split(/\r\n/).join('\n').split(/\n/)
     .map(e => e.replace(/^(\t*)/, (whole, p1) => p1.replace(/\t/g, '  ')))
     .map(e => e.replace(/^(\s*)/, (whole, p1) => p1.replace(/\s/g, '  ')))
     .join('\n')}\n`;
