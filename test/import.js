@@ -22,18 +22,23 @@ describe('@import css', () => {
     const input = `
     // @import .scss => styles
     .root(className='{cx(styles.root)}')
-      Intl(id="greeting")
+      IntlProvider
+        Intl(id="greeting")
+        Intl(id="hello")
     `;
     const expected = removeIndent(`
     import React from 'react';
-    import { FormattedMessage as Intl } from 'react-intl';
+    import { FormattedMessage as Intl, IntlProvider } from 'react-intl';
     import cx from 'classnames';
     import styles from '%BASENAME%.scss';
     
     export default function() {
       return (
         <div className={'root ' + cx(styles.root)}>
-          <Intl id="greeting" />
+          <IntlProvider>
+            <Intl id="greeting" />
+            <Intl id="hello" />
+          </IntlProvider>
         </div>
       );
     }
@@ -42,7 +47,10 @@ describe('@import css', () => {
       resolve: {
         classnames: 'cx',
         'react-intl': {
-          member: { Intl: 'FormattedMessage' },
+          member: {
+            Intl: 'FormattedMessage',
+            IntlProvider: 'IntlProvider',
+          },
         },
       },
       template: true,

@@ -204,7 +204,8 @@ function getImports(variables, resolveOpt = {}) {
     }
     const next = { ...prev };
     next.used.push(each);
-    const item = prev[matched.moduleName] || { moduleName: matched.moduleName };
+    const item = (prev.imports && prev.imports[matched.moduleName])
+      || { moduleName: matched.moduleName };
     if (matched.type === 'name') {
       item.name = matched.name;
     }
