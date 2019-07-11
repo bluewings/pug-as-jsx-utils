@@ -82,4 +82,28 @@ describe('@import css', () => {
     });
     jsxTemplate.trim().should.be.eql(expected);
   });
+
+  it('use transform option', () => {
+    const input = `
+    div
+      | ~~greeting_message
+      input(type="text", placeholder="~~type_your_name")
+    `;
+    const expected = removeIndent(`
+    <div>
+      <FormattedMessage id="greeting_message" />
+      <input type="text" placeholder="~~type_your_name" />
+    </div>
+    `);
+    const { jsx } = pugToJsx(input, {
+      transform: [/~~([A-Za-z_.]+)/, (type, whole, p1) => {
+        if (type === 'text') {
+          return `<FormattedMessage id="${p1}" />`;
+        }
+        return null;
+      }],
+      template: true,
+    });
+    jsx.trim().should.be.eql(expected);
+  });
 });

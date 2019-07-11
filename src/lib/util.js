@@ -383,6 +383,19 @@ function babelTransform(src, filename = '') {
   return code;
 }
 
+function isTransformOption(target) {
+  if (Array.isArray(target) && target.length === 2 && target[0].constructor && target[0].constructor.name === 'RegExp' && typeof target[1] === 'function') {
+    return true;
+  }
+  return false;
+}
+
+function getTransformFuncs(options) {
+  const { transform } = options || {};
+  return ((isTransformOption(transform)
+    ? [transform] : transform) || []).filter(e => isTransformOption(e));
+}
+
 export {
   analyzeJsx,
   hashCode,
@@ -392,4 +405,5 @@ export {
   removeIndent,
   removePugComment,
   babelTransform,
+  getTransformFuncs,
 };

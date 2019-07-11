@@ -1,7 +1,8 @@
 import pug from 'pug';
 import prettier from 'prettier';
 import {
-  analyzeJsx, hashCode, getImports, getUsage, removeDupAttrs, removeIndent, removePugComment, babelTransform,
+  analyzeJsx, hashCode, getImports, getUsage, removeDupAttrs,
+  removeIndent, removePugComment, babelTransform, getTransformFuncs,
 } from './lib/util';
 import template from './lib/template';
 import works from './rules/works';
@@ -103,6 +104,22 @@ const toJsx = (source, options = {}) => {
       .replace(new RegExp(`</annot_${key}>`, 'g'), annot[key].endBlock.trim()),
     jsxCode);
 
+  jsxCode = getTransformFuncs(options).reduce((prev, [pattern, replaceFn]) => {
+    const regexp = new RegExp(new RegExp(pattern, '').toString().replace(/^\/([\s\S]+)\/$/, '([\\s\\S])($1)([\\s\\S])'), 'g');
+    return ` ${prev} `.replace(regexp, (...all) => {
+      const original = all.shift();
+      const args = all.slice(0, all.length - 2);
+      const preChar = args.shift();
+      const postChar = args.pop();
+      const type = preChar === '"' && postChar === '"' ? 'attribute' : 'text';
+      const replaced = replaceFn(type, ...args);
+      if (typeof replaced === 'string') {
+        return type === 'text' ? `${preChar}${replaced}${postChar}` : replaced;
+      }
+      return original;
+    });
+  }, jsxCode);
+
   // remove the outer brackets
   jsxCode = jsxCode.replace(/^\s*{([\s\S]+)}\s*$/, '$1');
 
@@ -136,6 +153,7 @@ const pugToJsx = (source, userOptions = {}) => {
     template: false,
     analyze: false,
     resolve: {},
+    transform: [],
     ...userOptions,
   };
 
