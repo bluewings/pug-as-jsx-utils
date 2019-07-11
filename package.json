@@ -35,9 +35,9 @@
     "mocha": "^6.0.2",
     "rollup": "^1.7.4",
     "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-commonjs": "^9.2.2",
+    "rollup-plugin-commonjs": "^10.0.1",
     "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-node-resolve": "^4.0.1",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "should": "^13.2.3"
   },
   "scripts": {

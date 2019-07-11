@@ -21,7 +21,7 @@ div
 .btn(abbr="interrupt", class="btn-default")
 
 @EXPECTED:
-<div className="btn btn-default" abbr="interrupt" />
+<div className="btn btn-default" abbr="interrupt"></div>
 
 
 @NAME: use template-literal if possible
@@ -30,7 +30,7 @@ div
 ul.nav.nav-tabs(className='{"nav-tabs-" + tabs.length}')
 
 @EXPECTED:
-<ul className={'nav nav-tabs ' + ('nav-tabs-' + tabs.length)} />
+<ul className={'nav nav-tabs ' + ('nav-tabs-' + tabs.length)}></ul>
 
 
 @NAME: line breaks when there are too many properties
@@ -46,7 +46,7 @@ button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar
   data-target="#navbar"
   aria-expanded="false"
   aria-controls="navbar"
-/>
+></button>
 
 
 @NAME: multi line options
@@ -57,7 +57,7 @@ div(options='{{ \
   theme: "monokai" }}')
 
 @EXPECTED:
-<div options={{ lineNum: true, theme: 'monokai' }} />
+<div options={{ lineNum: true, theme: 'monokai' }}></div>
 
 
 @NAME: use jsx expression
@@ -68,7 +68,7 @@ div
 
 @EXPECTED:
 <div>
-  <WrappedComponent id="wrap" {...props} data-attr="attr" />
+  <WrappedComponent id="wrap" {...props} data-attr="attr"></WrappedComponent>
 </div>
 
 
@@ -80,7 +80,7 @@ div
 
 @EXPECTED:
 <div>
-  <WrappedComponent id="wrap" {...props} {...otherProps} />
+  <WrappedComponent id="wrap" {...props} {...otherProps}></WrappedComponent>
 </div>
 `);
 

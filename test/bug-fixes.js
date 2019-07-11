@@ -62,7 +62,7 @@ a.nav-link
 
 @EXPECTED:
 <a className="nav-link">
-  <i className={icons[name]} />
+  <i className={icons[name]}></i>
 </a>
 
 
@@ -74,7 +74,7 @@ a.nav-link(href='#', onClick='{this.handleClick}')
 
 @EXPECTED:
 <a className="nav-link" href="#" onClick={this.handleClick}>
-  <i style={{ marginRight: 8 }} className={icons[name]} />
+  <i style={{ marginRight: 8 }} className={icons[name]}></i>
 </a>
 
 
@@ -84,7 +84,7 @@ a.nav-link(href='#', onClick='{this.handleClick}')
 button.btn(className='{styles.btnAdAssets}' data-item-id='{item.id}')
 
 @EXPECTED:
-<button className={'btn ' + styles.btnAdAssets} data-item-id={item.id} />
+<button className={'btn ' + styles.btnAdAssets} data-item-id={item.id}></button>
 
 
 @NAME: className conflict 4
@@ -101,7 +101,7 @@ button.btn.btn-default(type='button',
   type="button"
   disabled={!refValue || refValue === fieldValue}
   onClick={this.handleSyncClick}
-/>
+></button>
 
 
 @NAME: commented annotations
@@ -199,7 +199,7 @@ div
 
 @EXPECTED:
 <div className={'SchemaForm ' + schemaFormStyle} ref={wrapEl => (this.wrapEl = wrapEl)}>
-  <Container />
+  <Container></Container>
 </div>
 
 
@@ -217,7 +217,7 @@ div
 
 @EXPECTED:
 <div>
-  <div className="should-be-visible" />
+  <div className="should-be-visible"></div>
 </div>
 
 
@@ -251,7 +251,7 @@ p
       ((browser.name.search(/^ie$/i) !== -1 ? 'fa-internet-explorer' : '') +
         (browser.name.search(/chrome/i) !== -1 ? 'fa-chrome' : ''))
     }
-  />
+  ></i>
   {browser.name}
 </p>
 

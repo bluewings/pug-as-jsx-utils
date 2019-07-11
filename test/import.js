@@ -36,8 +36,8 @@ describe('@import css', () => {
       return (
         <div className={'root ' + cx(styles.root)}>
           <IntlProvider>
-            <Intl id="greeting" />
-            <Intl id="hello" />
+            <Intl id="greeting"></Intl>
+            <Intl id="hello"></Intl>
           </IntlProvider>
         </div>
       );
