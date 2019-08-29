@@ -162,9 +162,26 @@ const pugToJsx = (source, userOptions = {}) => {
     analyze: options.template || options.analyze,
   });
 
+  const getPragma = (type) => {
+    switch ((type || '').trim().toLowerCase()) {
+      case 'preact':
+      case 'h':
+        return ['preact', 'Preact'];
+      case 'mithril':
+      case 'm':
+        return ['mithril', 'm'];
+      default:
+        return ['react', 'React'];
+    }
+  };
+
+  const [_module, _import] = getPragma(options.pragma);
+
   if (options.template) {
     const jsxTemplate = [
-      result.useFragment ? "import React, { Fragment } from 'react';" : "import React from 'react';",
+      result.useFragment
+        ? `import ${_import}, { Fragment } from '${_module}';`
+        : `import ${_import} from '${_module}';`,
       ...(result.imports || []).map(({ name, member, moduleName }) => {
         const chunk = [
           name,
