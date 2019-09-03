@@ -24,6 +24,13 @@ const analyzeJsxOptions = {
   ignore: ['React'],
 };
 
+const resolveModule = (moduleName, rootDir) => {
+  if (moduleName && rootDir) {
+    return moduleName.replace(/^@\//, `${rootDir}/`);
+  }
+  return moduleName;
+};
+
 const toJsx = (source, options = {}) => {
   const localWorks = works.map(({ pre, post }) => ({ pre, post, context: {} }));
 
@@ -187,7 +194,7 @@ const pugToJsx = (source, userOptions = {}) => {
           name,
           member && member.length > 0 && `{ ${member.map(e => (e.alias ? `${e.name} as ${e.alias}` : e.name)).join(', ')} }`,
         ].filter(e => e).join(', ');
-        return `import ${chunk} from '${moduleName}';`;
+        return `import ${chunk} from '${resolveModule(moduleName, options.rootDir)}';`;
       }),
       '',
       result.useMacro && template.macro,
