@@ -8,6 +8,8 @@ import template from './lib/template';
 import works from './rules/works';
 import annotations from './rules/annotations';
 
+const path = require('path');
+
 const jsxPrettierOptions = {
   parser: 'babel',
   printWidth: 120,
@@ -163,7 +165,16 @@ const pugToJsx = (source, userOptions = {}) => {
     transform: [],
     ...userOptions,
   };
-
+  let { rootDir } = options;
+  if (rootDir && options.resourcePath) {
+    const [, ...rest] = options.resourcePath.split(rootDir);
+    rootDir = rest
+      .join(rootDir)
+      .split(path.sep)
+      .filter((e, i, arr) => e && i < arr.length - 1)
+      .fill('..')
+      .join('/');
+  }
   let result = toJsx(source, {
     ...options,
     analyze: options.template || options.analyze,
@@ -194,7 +205,7 @@ const pugToJsx = (source, userOptions = {}) => {
           name,
           member && member.length > 0 && `{ ${member.map(e => (e.alias ? `${e.name} as ${e.alias}` : e.name)).join(', ')} }`,
         ].filter(e => e).join(', ');
-        return `import ${chunk} from '${resolveModule(moduleName, options.rootDir)}';`;
+        return `import ${chunk} from '${resolveModule(moduleName, rootDir)}';`;
       }),
       '',
       result.useMacro && template.macro,
