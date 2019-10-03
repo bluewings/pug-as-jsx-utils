@@ -4,6 +4,7 @@ import {
   analyzeJsx, hashCode, getImports, getUsage, removeDupAttrs,
   removeIndent, removePugComment, babelTransform, getTransformFuncs,
 } from './lib/util';
+import { transform } from './lib/pug-syntax';
 import template from './lib/template';
 import works from './rules/works';
 import annotations from './rules/annotations';
@@ -90,8 +91,12 @@ const toJsx = (source, options = {}) => {
   // remove duplicate attributes
   pugCode = removeDupAttrs(pugCode);
 
+  const plugins = [{
+    postParse: (ast) => transform(ast)
+  }];
+
   // pug to html
-  let jsxCode = `\n${pug.render(pugCode, { pretty: true })}\n`;
+  let jsxCode = `\n${pug.render(pugCode, { pretty: true, plugins })}\n`;
 
   // post-processing pug.render
   // post-processing is performed in the reverse order of pre-processing
