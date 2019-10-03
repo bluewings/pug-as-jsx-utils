@@ -1,6 +1,6 @@
 {
   "name": "pug-as-jsx-utils",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "main": "dist/pug-as-jsx-utils.cjs.js",
   "module": "dist/pug-as-jsx-utils.es.js",
   "jsnext:main": "dist/pug-as-jsx-utils.es.js",
