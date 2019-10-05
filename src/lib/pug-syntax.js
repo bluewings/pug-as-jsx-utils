@@ -42,7 +42,7 @@ const transform = function (ast) {
           const { obj, val, key, block, line, column } = node;
           const nodes = [
             !endBlock ? { type: 'Text', val: '{', line, column } : null,
-            { type: 'Text', val: `${obj}.map((${val}${key ? `, ${key}` : ''}) => (`, line, column },
+            { type: 'Text', val: `__macro.for(${obj}).map((${val}${key ? `, ${key}` : ''}) => (`, line, column },
             block,
             { type: 'Text', val: '))', line, column },
             !endBlock ? { type: 'Text', val: '}', line, column } : null,
