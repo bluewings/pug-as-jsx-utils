@@ -104,12 +104,27 @@ div(...props)
 
 @EXPECTED:
 <div {...props}></div>
+
+
+@NAME: require
+
+@INPUT:
+img(src=require('./photo.jpg'))
+
+@EXPECTED:
+import React from 'react';
+import require_gsuhguc from './photo.jpg';
+
+export default function() {
+  return <img src={require_gsuhguc} />;
+}
 `);
 
 describe('pug syntax', () => {
   tests.forEach(({ name, input, expected }) => {
     it(name, () => {
-      const output = pugToJsx(input).jsx;
+      const { jsx, jsxTemplate, useRequire } = pugToJsx(input, { template: true });
+      const output = !useRequire ? jsx : jsxTemplate.trim();
       output.should.be.eql(expected);
     });
   });

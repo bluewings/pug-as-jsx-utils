@@ -1,6 +1,7 @@
 import jsc from 'jscodeshift';
 import prettier from 'prettier';
 import babel from '@babel/core';
+import escapeStringRegexp from 'escape-string-regexp';
 
 const reservedWords = [
   'Object', 'String', 'Number', 'Array',
@@ -116,6 +117,10 @@ const analyzeJsx = (jsxOutput, options = {}) => {
       if (p.parent.node.type === 'Property' && p.parent.node.key === p.node) {
         return false;
       }
+      // exclude require call
+      if (p.parent.node.type === 'CallExpression' && p.node.name === 'require') {
+        return false;
+      }
       return true;
     })
     .forEach((p) => {
@@ -123,11 +128,36 @@ const analyzeJsx = (jsxOutput, options = {}) => {
     });
   variables = arrayUnique(variables.filter(e => varsToIgnore.indexOf(e) === -1)).sort();
 
+  // Get require.
+  let requires = {};
+  jsxRoot
+    .find(jsc.JSXAttribute)
+    .filter((p) => {
+      const { value } = p.node;
+      if (value.type === 'JSXExpressionContainer') {
+        const { expression } = value;
+        if (expression && expression.type === 'CallExpression' && expression.callee.name === 'require') {
+          return true;
+        }
+      }
+      return false;
+    })
+    .forEach((p) => {
+      const { value: { expression } } = p.node;
+      const [ target ] = expression.arguments;
+      if (/^(['"]).*\1$/.test(target.raw)) {
+        const key = hashCode(target.value);
+        requires[`require\\(${escapeStringRegexp(target.raw)}\\)`] = [ `require_${key}`, target.value ];
+      }
+    });
+
   return {
     useThis,
     useMacro: !!variables.find(e => e === '__macro'),
     useFragment: !!variables.find(e => e === 'Fragment'),
+    useRequire: !!Object.keys(requires).length,
     variables: variables.filter(e => ['__macro', 'Fragment'].indexOf(e) === -1),
+    requires,
   };
 };
 

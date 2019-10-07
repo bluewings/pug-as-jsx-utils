@@ -151,6 +151,9 @@ const toJsx = (source, options = {}) => {
     const analyzed = analyzeJsx(result.jsx, analyzeJsxOptions);
     const { used, imports } = getImports(analyzed.variables, resolves);
     const variables = analyzed.variables.filter(e => used.indexOf(e) === -1);
+    if (analyzed.useRequire) {
+      Object.entries(analyzed.requires).forEach(([ search, [ replacement ] ]) => result.jsx = result.jsx.replace(new RegExp(search, 'g'), replacement));
+    }
     result = {
       ...result,
       ...analyzed,
@@ -204,6 +207,7 @@ const pugToJsx = (source, userOptions = {}) => {
   const [_module, _import] = getPragma(options.pragma);
 
   if (options.template) {
+    result.imports = result.imports.concat(Object.values(result.requires).map(([ name, moduleName ]) => ({ name, moduleName })));
     const jsxTemplate = [
       result.useFragment
         ? `import ${_import}, { Fragment } from '${_module}';`
