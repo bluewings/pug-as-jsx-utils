@@ -8,8 +8,11 @@ const transform = function (ast) {
     switch (node.type) {
       case 'Tag':
         node.attrs.forEach(attr => {
-          let { val } = attr;
-          if (!/^(['"]).*\1$/.test(val)) {
+          let { name, val } = attr;
+          if (name.startsWith('...')) {
+            attr.name = `{${attr.name}}`;
+            attr.val = '"__rest"';
+          } else if (!/^(['"]).*\1$/.test(val)) {
             val = !/^\(.*\)$/.test(val) ? val : val.substring(1, val.length - 1);
             attr.val = `"{${val.replace(/"/g, '\\"')}}"`;
             attr.mustEscape = false;

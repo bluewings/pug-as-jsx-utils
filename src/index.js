@@ -137,6 +137,9 @@ const toJsx = (source, options = {}) => {
   // remove the outer brackets
   jsxCode = jsxCode.replace(/^\s*{([\s\S]+)}\s*$/, '$1');
 
+  // fix rest props
+  jsxCode = jsxCode.replace(/({\.\.\..+})="__rest"/g, '$1');
+
   try {
     jsxCode = prettier.format(`(${jsxCode})`, jsxPrettierOptions);
   } catch (err) {
