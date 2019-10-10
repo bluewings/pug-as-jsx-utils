@@ -11,7 +11,7 @@ const transform = function (ast) {
           let { val } = attr;
           if (!/^(['"]).*\1$/.test(val)) {
             val = !/^\(.*\)$/.test(val) ? val : val.substring(1, val.length - 1);
-            attr.val = `"{${val.replace(/"/g, '\\"')}}"`;
+            attr.val = `"{${!val.replace ? val : val.replace(/"/g, '\\"')}}"`;
             attr.mustEscape = false;
           }
         });
