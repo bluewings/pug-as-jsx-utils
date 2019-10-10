@@ -95,6 +95,15 @@ div
     return null
   })()}
 </div>
+
+
+@NAME: rest props
+
+@INPUT:
+div(...props)
+
+@EXPECTED:
+<div {...props}></div>
 `);
 
 describe('pug syntax', () => {
