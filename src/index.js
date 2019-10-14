@@ -96,7 +96,7 @@ const toJsx = (source, options = {}) => {
   }];
 
   // pug to html
-  let jsxCode = `\n${pug.render(pugCode, { pretty: true, plugins })}\n`;
+  let jsxCode = `\n${pug.render(pugCode, { pretty: true, plugins, filename: options.resourcePath, basedir: options.rootDir })}\n`;
 
   // post-processing pug.render
   // post-processing is performed in the reverse order of pre-processing
