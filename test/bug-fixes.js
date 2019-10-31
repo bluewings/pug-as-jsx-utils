@@ -281,6 +281,19 @@ p
     </a>
   </header>
 </div>
+
+@NAME: function call in loop
+
+@INPUT:
+ul
+  li(@for='func in funcs', data-name='{func()}')
+
+@EXPECTED:
+<ul>
+  {__macro.for(funcs).map((func, i) => (
+    <li key={i} data-name={func()}></li>
+  ))}
+</ul>
 `);
 
 describe('bug-fixes', () => {

@@ -136,7 +136,7 @@ const analyzeJsx = (jsxOutput, options = {}) => {
       const { value } = p.node;
       if (value.type === 'JSXExpressionContainer') {
         const { expression } = value;
-        if (expression && expression.type === 'CallExpression' && expression.callee.name === 'require') {
+        if (expression && expression.type === 'CallExpression' && expression.callee && expression.callee.name === 'require') {
           return true;
         }
       }
