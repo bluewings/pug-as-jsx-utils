@@ -24,18 +24,29 @@ const transform = function (ast) {
         break;
       case 'Conditional':
         {
-          let nodes;
-          if (node.alternate) {
-            nodes = getConditionalNodes(node, endBlock);
-          } else {
-            const { test, consequent, line, column } = node;
-            nodes = [
-              !endBlock ? { type: 'Text', val: '{', line, column } : null,
-              { type: 'Text', val: `${node.test} && (`, line, column },
-              consequent,
-              !endBlock ? { type: 'Text', val: ')}', line, column } : null,
+          const getNodes = (node, deep) => {
+            const { type, test, consequent, alternate, line, column } = node;
+            if (type !== 'Conditional') {
+              return [
+                { type: 'Text', val: '(', line, column },
+                node,
+                { type: 'Text', val: '\n)', line, column },
+              ];
+            }
+            return [
+              !deep && !endBlock ? { type: 'Text', val: '{', line, column } : null,
+              { type: 'Text', val: `${test} ? `, line, column },
+              ...[
+                { type: 'Text', val: '(', line, column },
+                consequent,
+                { type: 'Text', val: ')', line, column },
+              ],
+              { type: 'Text', val: ' : ', line, column },
+              ...(!alternate ? [ { type: 'Text', val: 'undefined', line, column } ] : getNodes(alternate, true)),
+              !deep && !endBlock ? { type: 'Text', val: '}', line, column } : null,
             ].filter(Boolean);
           }
+          const nodes = getNodes(node);
           replace(nodes);
           endBlock = endBlock || nodes[nodes.length - 1];
         }
@@ -93,26 +104,3 @@ const transformString = function (src) {
 }
 
 export { transform, transformString };
-
-function getConditionalNodes(node, endBlock, deep) {
-  const { type, test, consequent, alternate, line, column } = node;
-  if (type !== 'Conditional') {
-    return [
-      { type: 'Text', val: '(', line, column },
-      node,
-      { type: 'Text', val: '\n)', line, column },
-    ];
-  }
-  return [
-    !deep && !endBlock ? { type: 'Text', val: '{', line, column } : null,
-    { type: 'Text', val: `${node.test} ? `, line, column },
-    ...[
-      { type: 'Text', val: '(', line, column },
-      consequent,
-      { type: 'Text', val: ')', line, column },
-    ],
-    { type: 'Text', val: ' : ', line, column },
-    ...(!alternate ? [ { type: 'Text', val: 'null', line, column } ] : getConditionalNodes(alternate, endBlock, true)),
-    !deep && !endBlock ? { type: 'Text', val: '}', line, column } : null,
-  ].filter(Boolean);
-}
