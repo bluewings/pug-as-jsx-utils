@@ -31,12 +31,11 @@ const transform = function (ast) {
           } else {
             const { test, consequent, line, column } = node;
             replacement = [
-              needWrap(nodes) ? { type: 'Text', val: '{', line, column } : null,
               { type: 'Text', val: `${node.test} && (`, line, column },
               consequent,
               { type: 'Text', val: ')', line, column },
-              needWrap(nodes) ? { type: 'Text', val: '}', line, column } : null,
-            ].filter(Boolean);
+            ];
+            replacement = isBracketsRequired(nodes) ? wrapInBrackets(replacement) : replacement;
           }
           replace(replacement);
           node._last = replacement[replacement.length - 1];
@@ -46,13 +45,11 @@ const transform = function (ast) {
         {
           const { obj, val, key, block, line, column } = node;
           const replacement = [
-            needWrap(nodes) ? { type: 'Text', val: '{', line, column } : null,
             { type: 'Text', val: `__macro.for(${obj}).map((${val}${key ? `, ${key}` : ''}) => (`, line, column },
             block,
             { type: 'Text', val: '))', line, column },
-            needWrap(nodes) ? { type: 'Text', val: '}', line, column } : null,
-          ].filter(Boolean);
-          replace(replacement);
+          ];
+          replace(isBracketsRequired(nodes) ? wrapInBrackets(replacement) : replacement);
           node._last = replacement[replacement.length - 1];
         }
         break;
@@ -60,7 +57,6 @@ const transform = function (ast) {
         {
           const { type, expr, block, line, column } = node;
           const replacement = [
-            needWrap(nodes) ? { type: 'Text', val: '{', line, column } : null,
             { type: 'Text', val: '(() => {\n', line, column },
             { type: 'Text', val: `switch (${expr}) {\n`, line, column },
             ...block.nodes.map(node => [
@@ -72,9 +68,8 @@ const transform = function (ast) {
             { type: 'Text', val: '}\n', line, column },
             { type: 'Text', val: 'return null;\n', line, column },
             { type: 'Text', val: '})()', line, column },
-            needWrap(nodes) ? { type: 'Text', val: '}', line, column } : null,
-          ].filter(Boolean);
-          replace(replacement);
+          ];
+          replace(isBracketsRequired(nodes) ? wrapInBrackets(replacement) : replacement);
           node._last = replacement[replacement.length - 1];
         }
         break;
@@ -106,9 +101,17 @@ const transformString = function (src) {
 
 export { transform, transformString };
 
-function needWrap(nodes) {
+function isBracketsRequired(nodes) {
   const { type } = nodes[0] || {};
   return !type || type === 'Tag';
+}
+
+function wrapInBrackets(nodes) {
+  return [
+    { type: 'Text', val: '{' },
+    ...nodes,
+    { type: 'Text', val: '}' },
+  ];
 }
 
 function getConditionalNodes(node, nodes) {
@@ -120,8 +123,8 @@ function getConditionalNodes(node, nodes) {
       { type: 'Text', val: '\n)', line, column },
     ];
   }
-  return [
-    needWrap(nodes) ? { type: 'Text', val: '{', line, column } : null,
+  const bracketsRequired = isBracketsRequired(nodes);
+  nodes = [
     { type: 'Text', val: `${node.test} ? `, line, column },
     ...[
       { type: 'Text', val: '(', line, column },
@@ -130,8 +133,8 @@ function getConditionalNodes(node, nodes) {
     ],
     { type: 'Text', val: ' : ', line, column },
     ...(!node.alternate ? [ { type: 'Text', val: 'null', line, column } ] : getConditionalChildNodes(node, nodes)),
-    needWrap(nodes) ? { type: 'Text', val: '}', line, column } : null,
-  ].filter(Boolean);
+  ];
+  return bracketsRequired ? wrapInBrackets(nodes) : nodes;
 }
 
 function getConditionalChildNodes(node, nodes) {
