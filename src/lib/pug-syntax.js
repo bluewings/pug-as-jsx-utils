@@ -23,6 +23,7 @@ const transform = function (ast) {
       case 'Code':
         const { type } = nodes[0] || {};
         node.val = !(type && [ 'Conditional', 'Each', 'Case' ].includes(type)) ? `"{${node.val}}"` : `"${node.val}"`;
+        node.mustEscape = false;
         return;
       case 'Conditional':
         {
