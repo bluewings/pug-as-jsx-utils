@@ -21,6 +21,7 @@ const transform = function (ast) {
         break;
       case 'Code':
         node.val = `"{${node.val}}"`;
+        node.mustEscape = false;
         break;
       case 'Conditional':
         {
