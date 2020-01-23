@@ -25,18 +25,36 @@ const transform = function (ast) {
         return;
       case 'Conditional':
         {
-          let replacement;
-          if (node.alternate) {
-            replacement = getConditionalNodes(node, nodes);
-          } else {
-            const { test, consequent, line, column } = node;
-            replacement = [
-              { type: 'Text', val: `${node.test} && (`, line, column },
-              consequent,
-              { type: 'Text', val: ')', line, column },
+          const getNodes = (node) => {
+            const { type, test, consequent, line, column } = node;
+            if (type !== 'Conditional') {
+              return [
+                { type: 'Text', val: '(', line, column },
+                node,
+                { type: 'Text', val: '\n)', line, column },
+              ];
+            }
+            node.alternate = node.alternate || {
+              type: 'Block',
+              nodes: [ { type: 'Text', val: '\'\'', line, column } ],
+              line,
+            }
+            nodes.unshift(node);
+            const alternate = getNodes(node.alternate);
+            nodes.shift();
+            const result = [
+              { type: 'Text', val: `${node.test} ? `, line, column },
+              ...[
+                { type: 'Text', val: '(', line, column },
+                consequent,
+                { type: 'Text', val: ')', line, column },
+              ],
+              { type: 'Text', val: ' : ', line, column },
+              ...alternate,
             ];
-            replacement = isBracketsRequired(nodes) ? wrapInBrackets(replacement) : replacement;
+            return isBracketsRequired(nodes) ? wrapInBrackets(result) : result;
           }
+          const replacement = getNodes(node);
           replace(replacement);
           node._last = replacement[replacement.length - 1];
         }
@@ -112,34 +130,4 @@ function wrapInBrackets(nodes) {
     ...nodes,
     { type: 'Text', val: '}' },
   ];
-}
-
-function getConditionalNodes(node, nodes) {
-  const { type, test, consequent, line, column } = node;
-  if (type !== 'Conditional') {
-    return [
-      { type: 'Text', val: '(', line, column },
-      node,
-      { type: 'Text', val: '\n)', line, column },
-    ];
-  }
-  const bracketsRequired = isBracketsRequired(nodes);
-  nodes = [
-    { type: 'Text', val: `${node.test} ? `, line, column },
-    ...[
-      { type: 'Text', val: '(', line, column },
-      consequent,
-      { type: 'Text', val: ')', line, column },
-    ],
-    { type: 'Text', val: ' : ', line, column },
-    ...(!node.alternate ? [ { type: 'Text', val: 'null', line, column } ] : getConditionalChildNodes(node, nodes)),
-  ];
-  return bracketsRequired ? wrapInBrackets(nodes) : nodes;
-}
-
-function getConditionalChildNodes(node, nodes) {
-  nodes.unshift(node);
-  const result = getConditionalNodes(node.alternate, nodes);
-  nodes.shift();
-  return result;
 }
