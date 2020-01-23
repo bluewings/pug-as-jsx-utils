@@ -3,7 +3,7 @@ const parse = require('pug-parser');
 const walk = require('pug-walk');
 
 const transform = function (ast) {
-  let endBlock;
+  let blockEndingNode;
   walk(ast, (node, replace) => {
     switch (node.type) {
       case 'Tag':
@@ -24,7 +24,7 @@ const transform = function (ast) {
         break;
       case 'Conditional':
         {
-          const getNodes = (node, deep) => {
+          const getNodes = (node, recursive) => {
             const { type, test, consequent, line, column } = node;
             const alternate = !node.alternate ? [ { type: 'Text', val: 'undefined', line, column } ] : getNodes(node.alternate, true)
             if (type !== 'Conditional') {
@@ -35,7 +35,7 @@ const transform = function (ast) {
               ];
             }
             return [
-              !deep && !endBlock ? { type: 'Text', val: '{', line, column } : null,
+              !blockEndingNode && !recursive ? { type: 'Text', val: '{', line, column } : null,
               { type: 'Text', val: `${test} ? `, line, column },
               ...[
                 { type: 'Text', val: '(', line, column },
@@ -44,33 +44,33 @@ const transform = function (ast) {
               ],
               { type: 'Text', val: ' : ', line, column },
               ...alternate,
-              !deep && !endBlock ? { type: 'Text', val: '}', line, column } : null,
+              !blockEndingNode && !recursive ? { type: 'Text', val: '}', line, column } : null,
             ].filter(Boolean);
           }
           const nodes = getNodes(node);
           replace(nodes);
-          endBlock = endBlock || nodes[nodes.length - 1];
+          blockEndingNode = blockEndingNode || nodes[nodes.length - 1];
         }
         break;
       case 'Each':
         {
           const { obj, val, key, block, line, column } = node;
           const nodes = [
-            !endBlock ? { type: 'Text', val: '{', line, column } : null,
+            !blockEndingNode ? { type: 'Text', val: '{', line, column } : null,
             { type: 'Text', val: `__macro.for(${obj}).map((${val}${key ? `, ${key}` : ''}) => (`, line, column },
             block,
             { type: 'Text', val: '))', line, column },
-            !endBlock ? { type: 'Text', val: '}', line, column } : null,
+            !blockEndingNode ? { type: 'Text', val: '}', line, column } : null,
           ].filter(Boolean);
           replace(nodes);
-          endBlock = endBlock || nodes[nodes.length - 1];
+          blockEndingNode = blockEndingNode || nodes[nodes.length - 1];
         }
         break;
       case 'Case':
         {
           const { type, expr, block, line, column } = node;
           const nodes = [
-            !endBlock ? { type: 'Text', val: '{', line, column } : null,
+            !blockEndingNode ? { type: 'Text', val: '{', line, column } : null,
             { type: 'Text', val: '(() => {\n', line, column },
             { type: 'Text', val: `switch (${expr}) {\n`, line, column },
             ...block.nodes.map(node => [
@@ -82,16 +82,16 @@ const transform = function (ast) {
             { type: 'Text', val: '}\n', line, column },
             { type: 'Text', val: 'return null;\n', line, column },
             { type: 'Text', val: '})()', line, column },
-            !endBlock ? { type: 'Text', val: '}', line, column } : null,
+            !blockEndingNode ? { type: 'Text', val: '}', line, column } : null,
           ].filter(Boolean);
           replace(nodes);
-          endBlock = endBlock || nodes[nodes.length - 1];
+          blockEndingNode = blockEndingNode || nodes[nodes.length - 1];
         }
         break;
     }
   }, node => {
-    if (node === endBlock) {
-      endBlock = null;
+    if (node === blockEndingNode) {
+      blockEndingNode = null;
     }
   });
   return ast;
