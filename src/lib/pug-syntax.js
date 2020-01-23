@@ -5,6 +5,7 @@ const walk = require('pug-walk');
 const transform = function (ast) {
   const nodes = [];
   walk(ast, (node, replace) => {
+    let replacement
     switch (node.type) {
       case 'Tag':
         node.attrs.forEach(attr => {
@@ -54,27 +55,26 @@ const transform = function (ast) {
             ];
             return isBracketsRequired(nodes) ? wrapInBrackets(result) : result;
           }
-          const replacement = getNodes(node);
+          replacement = getNodes(node);
           replace(replacement);
           node._last = replacement[replacement.length - 1];
+          replacement = null;
         }
         break;
       case 'Each':
         {
           const { obj, val, key, block, line, column } = node;
-          const replacement = [
+          replacement = [
             { type: 'Text', val: `__macro.for(${obj}).map((${val}${key ? `, ${key}` : ''}) => (`, line, column },
             block,
             { type: 'Text', val: '))', line, column },
           ];
-          replace(isBracketsRequired(nodes) ? wrapInBrackets(replacement) : replacement);
-          node._last = replacement[replacement.length - 1];
         }
         break;
       case 'Case':
         {
           const { type, expr, block, line, column } = node;
-          const replacement = [
+          replacement = [
             { type: 'Text', val: '(() => {\n', line, column },
             { type: 'Text', val: `switch (${expr}) {\n`, line, column },
             ...block.nodes.map(node => [
@@ -87,12 +87,15 @@ const transform = function (ast) {
             { type: 'Text', val: 'return null;\n', line, column },
             { type: 'Text', val: '})()', line, column },
           ];
-          replace(isBracketsRequired(nodes) ? wrapInBrackets(replacement) : replacement);
-          node._last = replacement[replacement.length - 1];
         }
         break;
       default:
         return;
+    }
+    if (replacement) {
+      replace(isBracketsRequired(nodes) ? wrapInBrackets(replacement) : replacement);
+      node._last = replacement[replacement.length - 1];
+      replacement = null;
     }
     nodes.unshift(node);
   }, node => {
