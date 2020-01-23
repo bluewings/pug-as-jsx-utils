@@ -25,7 +25,8 @@ const transform = function (ast) {
       case 'Conditional':
         {
           const getNodes = (node, deep) => {
-            const { type, test, consequent, alternate, line, column } = node;
+            const { type, test, consequent, line, column } = node;
+            const alternate = !node.alternate ? [ { type: 'Text', val: 'undefined', line, column } ] : getNodes(node.alternate, true)
             if (type !== 'Conditional') {
               return [
                 { type: 'Text', val: '(', line, column },
@@ -42,7 +43,7 @@ const transform = function (ast) {
                 { type: 'Text', val: ')', line, column },
               ],
               { type: 'Text', val: ' : ', line, column },
-              ...(!alternate ? [ { type: 'Text', val: 'undefined', line, column } ] : getNodes(alternate, true)),
+              ...alternate,
               !deep && !endBlock ? { type: 'Text', val: '}', line, column } : null,
             ].filter(Boolean);
           }
