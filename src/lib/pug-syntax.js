@@ -3,8 +3,9 @@ const parse = require('pug-parser');
 const walk = require('pug-walk');
 
 const transform = function (ast) {
-  let endBlock;
+  const nodes = [];
   walk(ast, (node, replace) => {
+    let replacement
     switch (node.type) {
       case 'Tag':
         node.attrs.forEach(attr => {
@@ -20,45 +21,61 @@ const transform = function (ast) {
         });
         break;
       case 'Code':
-        node.val = `"{${node.val}}"`;
-        break;
+        const { type } = nodes[0] || {};
+        node.val = !(type && [ 'Conditional', 'Each', 'Case' ].includes(type)) ? `"{${node.val}}"` : `"${node.val}"`;
+        node.mustEscape = false;
+        return;
       case 'Conditional':
         {
-          let nodes;
-          if (node.alternate) {
-            nodes = getConditionalNodes(node, endBlock);
-          } else {
-            const { test, consequent, line, column } = node;
-            nodes = [
-              !endBlock ? { type: 'Text', val: '{', line, column } : null,
-              { type: 'Text', val: `${node.test} && (`, line, column },
-              consequent,
-              !endBlock ? { type: 'Text', val: ')}', line, column } : null,
-            ].filter(Boolean);
+          const getNodes = (node) => {
+            const { type, test, consequent, line, column } = node;
+            if (type !== 'Conditional') {
+              return [
+                { type: 'Text', val: '(', line, column },
+                node,
+                { type: 'Text', val: '\n)', line, column },
+              ];
+            }
+            node.alternate = node.alternate || {
+              type: 'Block',
+              nodes: [ { type: 'Text', val: '\'\'', line, column } ],
+              line,
+            }
+            nodes.unshift(node);
+            const alternate = getNodes(node.alternate);
+            nodes.shift();
+            const result = [
+              { type: 'Text', val: `${node.test} ? `, line, column },
+              ...[
+                { type: 'Text', val: '(', line, column },
+                consequent,
+                { type: 'Text', val: ')', line, column },
+              ],
+              { type: 'Text', val: ' : ', line, column },
+              ...alternate,
+            ];
+            return isBracketsRequired(nodes) ? wrapInBrackets(result) : result;
           }
-          replace(nodes);
-          endBlock = endBlock || nodes[nodes.length - 1];
+          replacement = getNodes(node);
+          replace(replacement);
+          node._last = replacement[replacement.length - 1];
+          replacement = null;
         }
         break;
       case 'Each':
         {
           const { obj, val, key, block, line, column } = node;
-          const nodes = [
-            !endBlock ? { type: 'Text', val: '{', line, column } : null,
+          replacement = [
             { type: 'Text', val: `__macro.for(${obj}).map((${val}${key ? `, ${key}` : ''}) => (`, line, column },
             block,
             { type: 'Text', val: '))', line, column },
-            !endBlock ? { type: 'Text', val: '}', line, column } : null,
-          ].filter(Boolean);
-          replace(nodes);
-          endBlock = endBlock || nodes[nodes.length - 1];
+          ];
         }
         break;
       case 'Case':
         {
           const { type, expr, block, line, column } = node;
-          const nodes = [
-            !endBlock ? { type: 'Text', val: '{', line, column } : null,
+          replacement = [
             { type: 'Text', val: '(() => {\n', line, column },
             { type: 'Text', val: `switch (${expr}) {\n`, line, column },
             ...block.nodes.map(node => [
@@ -70,16 +87,28 @@ const transform = function (ast) {
             { type: 'Text', val: '}\n', line, column },
             { type: 'Text', val: 'return null;\n', line, column },
             { type: 'Text', val: '})()', line, column },
-            !endBlock ? { type: 'Text', val: '}', line, column } : null,
-          ].filter(Boolean);
-          replace(nodes);
-          endBlock = endBlock || nodes[nodes.length - 1];
+          ];
         }
         break;
+      default:
+        return;
     }
+    if (replacement) {
+      replace(isBracketsRequired(nodes) ? wrapInBrackets(replacement) : replacement);
+      node._last = replacement[replacement.length - 1];
+      replacement = null;
+    }
+    nodes.unshift(node);
   }, node => {
-    if (node === endBlock) {
-      endBlock = null;
+    switch (node.type) {
+      case 'Tag':
+        nodes.shift();
+        break;
+      default:
+        if (nodes[0] && (nodes[0] === node || nodes[0]._last === node)) {
+          nodes.shift();
+        }
+        break;
     }
   });
   return ast;
@@ -94,25 +123,15 @@ const transformString = function (src) {
 
 export { transform, transformString };
 
-function getConditionalNodes(node, endBlock, deep) {
-  const { type, test, consequent, alternate, line, column } = node;
-  if (type !== 'Conditional') {
-    return [
-      { type: 'Text', val: '(', line, column },
-      node,
-      { type: 'Text', val: '\n)', line, column },
-    ];
-  }
+function isBracketsRequired(nodes) {
+  const { type } = nodes[0] || {};
+  return !type || type === 'Tag';
+}
+
+function wrapInBrackets(nodes) {
   return [
-    !deep && !endBlock ? { type: 'Text', val: '{', line, column } : null,
-    { type: 'Text', val: `${node.test} ? `, line, column },
-    ...[
-      { type: 'Text', val: '(', line, column },
-      consequent,
-      { type: 'Text', val: ')', line, column },
-    ],
-    { type: 'Text', val: ' : ', line, column },
-    ...(!alternate ? [ { type: 'Text', val: 'null', line, column } ] : getConditionalNodes(alternate, endBlock, true)),
-    !deep && !endBlock ? { type: 'Text', val: '}', line, column } : null,
-  ].filter(Boolean);
+    { type: 'Text', val: '{' },
+    ...nodes,
+    { type: 'Text', val: '}' },
+  ];
 }
