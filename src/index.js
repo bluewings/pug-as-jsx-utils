@@ -8,6 +8,7 @@ import { transform } from './lib/pug-syntax';
 import template from './lib/template';
 import works from './rules/works';
 import annotations from './rules/annotations';
+import codemod from './codemod';
 
 const path = require('path');
 
@@ -246,4 +247,5 @@ export {
   analyzeJsx,
   removeIndent,
   babelTransform,
+  codemod,
 };

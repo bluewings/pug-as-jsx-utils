@@ -1,6 +1,6 @@
 {
   "name": "pug-as-jsx-utils",
-  "version": "1.0.38",
+  "version": "1.0.39",
   "main": "dist/pug-as-jsx-utils.cjs.js",
   "module": "dist/pug-as-jsx-utils.es.js",
   "jsnext:main": "dist/pug-as-jsx-utils.es.js",
@@ -15,10 +15,13 @@
   },
   "dependencies": {
     "@babel/core": "^7.5.5",
+    "@babel/parser": "^7.8.4",
     "@babel/preset-react": "^7.0.0",
+    "glob": "^7.1.6",
     "jscodeshift": "^0.6.4",
     "prettier": "^1.18.2",
-    "pug": "^2.0.4"
+    "pug": "^2.0.4",
+    "recast": "^0.18.5"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.5.5",
