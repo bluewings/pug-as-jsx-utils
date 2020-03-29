@@ -345,7 +345,7 @@ function getUsage({ useThis, variables }) {
 
 function removeDupAttrs(pugCode) {
   return pugCode.replace(/\(([^()]{0,}?)\)/g, (whole, p1) => {
-    const matched = ` ${p1.replace(/\n/g, ' ')}`.match(/[a-zA-Z0-9_-]+(\s*=\s*'.*?'){1,}/g);
+    const matched = ` ${p1.replace(/\n/g, ' ')}`.match(/[a-zA-Z0-9_-]+(\s*=\s*(('.*?')|(".*?"))){1,}/g);
     if (!matched) {
       return whole;
     }
