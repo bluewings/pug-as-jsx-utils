@@ -9,6 +9,7 @@ import template from './lib/template';
 import works from './rules/works';
 import annotations from './rules/annotations';
 import codemod from './codemod';
+import addRoleButton from './codemod/addRoleButton';
 
 const path = require('path');
 
@@ -147,6 +148,11 @@ const toJsx = (source, options = {}) => {
     jsxCode = prettier.format(`<>${jsxCode}</>`, jsxPrettierOptions);
   }
 
+  // autofix features.
+  if (options.autoFix) {
+    jsxCode = addRoleButton(jsxCode);
+  }
+
   let result = { jsx: jsxCode.trim().replace(/(^;|;$)/g, '') };
   if (options.analyze) {
     const analyzed = analyzeJsx(result.jsx, analyzeJsxOptions);
@@ -248,4 +254,5 @@ export {
   removeIndent,
   babelTransform,
   codemod,
+  addRoleButton,
 };
