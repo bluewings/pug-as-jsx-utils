@@ -11,6 +11,7 @@ div(onClick=(() => click()))
 div= foo
 div #{bar}
 input(disabled)
+div(@onClick="click($params[0])")
 
 @EXPECTED:
 <>
@@ -19,6 +20,7 @@ input(disabled)
   <div>{foo}</div>
   <div>{bar}</div>
   <input disabled={true} />
+  <div onClick={(...$params) => click($params[0])}></div>
 </>
 
 
