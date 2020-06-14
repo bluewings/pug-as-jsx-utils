@@ -294,6 +294,27 @@ ul
     <li key={i} data-name={func()}></li>
   ))}
 </ul>
+
+@NAME: boolean shorthand
+
+@INPUT:
+BrowserRouter
+  Route(exact)
+  Route(exact path="/" component="{Home}")
+  Route(path="/" exact component="{Home}")
+  Route(path="/" component="{Home}" exact)
+  Route(path="/" component="{Home}" exact="{true}")
+  Route(path="/" component="{Home}" exact="{false}")
+
+@EXPECTED:
+<BrowserRouter>
+  <Route exact={true}></Route>
+  <Route exact={true} path="/" component={Home}></Route>
+  <Route path="/" exact={true} component={Home}></Route>
+  <Route path="/" component={Home} exact={true}></Route>
+  <Route path="/" component={Home} exact={true}></Route>
+  <Route path="/" component={Home} exact={false}></Route>
+</BrowserRouter>
 `);
 
 describe('bug-fixes', () => {
