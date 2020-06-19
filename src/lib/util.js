@@ -344,7 +344,7 @@ function getUsage({ useThis, variables }) {
 }
 
 function removeDupAttrs(pugCode) {
-  return pugCode.replace(/\(([^()]{0,}?)\)/g, (whole, p1) => {
+  return pugCode.replace(/([^\s])\(([^()]{0,}?)\)/g, (whole, p0, p1) => {
     const matched = ` ${p1.replace(/\n/g, ' ')} `
       .replace(/\s+([a-zA-Z0-9_-]+)(\s*=\s*(('.*?')|(".*?")))/g, ' $1=$3')    
       .match(/(([a-zA-Z0-9_-]+(\s*=\s*(('.*?')|(".*?"))){1,})|\s+[a-zA-Z0-9_-]+\s+)/g);
@@ -368,7 +368,7 @@ function removeDupAttrs(pugCode) {
     const replacement = Object.entries(attrs)
       .map(([k, v]) => (v ? `${k}=${v}` : k))
       .join(', ');
-    return `(${replacement})`;
+    return `${p0}(${replacement})`;
   });
 }
 

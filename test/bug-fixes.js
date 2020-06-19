@@ -315,6 +315,24 @@ BrowserRouter
   <Route path="/" component={Home} exact={true}></Route>
   <Route path="/" component={Home} exact={false}></Route>
 </BrowserRouter>
+
+@NAME: children as function
+
+@INPUT:
+div
+  | {({ Form, Input }) => (
+  Form
+    Input
+  | )}
+
+@EXPECTED:
+<div>
+  {({ Form, Input }) => (
+    <Form>
+      <Input></Input>
+    </Form>
+  )}
+</div>
 `);
 
 describe('bug-fixes', () => {
