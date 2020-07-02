@@ -12,6 +12,8 @@ import codemod from './codemod';
 import addRoleButton from './codemod/addRoleButton';
 
 const path = require('path');
+const generateCode = require('pug-code-gen');
+const runtimeWrap = require('pug-runtime/wrap');
 
 const jsxPrettierOptions = {
   parser: 'babel',
@@ -36,70 +38,7 @@ const resolveModule = (moduleName, rootDir) => {
   return moduleName;
 };
 
-const toJsx = (source, options = {}) => {
-  const localWorks = works.map(({ pre, post }) => ({ pre, post, context: {} }));
-
-  // force at least two spaces between depths
-  let pugCode = `\n${source.split(/\r\n/).join('\n').split(/\n/)
-    .map(e => e.replace(/^(\t*)/, (whole, p1) => p1.replace(/\t/g, '  ')))
-    .map(e => e.replace(/^(\s*)/, (whole, p1) => p1.replace(/\s/g, '  ')))
-    .join('\n')}\n`;
-  pugCode = removeIndent(pugCode);
-  pugCode = removePugComment(pugCode);
-
-  // convert annotations to tags with preprocessing
-  const { lines, annot, resolves } = pugCode
-    .split(/\n/)
-    .reduce((dict, curr) => {
-      let stepBack = '';
-      const indent = Array(curr.search(/[^\s]/) + 1).join(' ');
-      annotations.forEach((annotation) => {
-        if (curr.match(annotation.pattern)) {
-          const {
-            startBlock, replacement, endBlock, resolve,
-          } = annotation.process(curr, annotation.pattern);
-          if (resolve) {
-            dict.resolves = { ...dict.resolves, ...resolve };
-          }
-          if (startBlock || endBlock) {
-            const content = { startBlock, endBlock };
-            const key = hashCode(content);
-            dict.lines.push(`${indent}annot_${key}`);
-            dict.annot[key] = content;
-            stepBack = ' ';
-          }
-          curr = replacement;
-        }
-      });
-      dict.lines.push(`${stepBack}${curr}`);
-      return dict;
-    }, { lines: [], annot: {}, resolves: { ...options.resolve } });
-  if (!options.analyze && Object.keys(resolves).length > 0) {
-    options.analyze = true;
-  }
-  pugCode = removeIndent(lines.join('\n'));
-
-  // pre-processing pug.render
-  pugCode = localWorks
-    .filter(({ pre }) => pre && pre.length === 2)
-    .map(({ pre, context }) => [...pre, context])
-    .reduce((prev, [pattern, replaceFn, context]) => {
-      if (typeof replaceFn !== 'function') {
-        return prev.replace(pattern, replaceFn);
-      }
-      return prev.replace(pattern, (...args) => replaceFn(context, ...args));
-    }, pugCode);
-
-  // remove duplicate attributes
-  pugCode = removeDupAttrs(pugCode);
-
-  const plugins = [{
-    postParse: (ast) => transform(ast)
-  }];
-
-  // pug to html
-  let jsxCode = `\n${pug.render(pugCode, { pretty: true, plugins, filename: options.resourcePath, basedir: options.rootDir })}\n`;
-
+const processJsxCode = (jsxCode, options, localWorks, annot, resolves) => {
   // post-processing pug.render
   // post-processing is performed in the reverse order of pre-processing
   jsxCode = localWorks
@@ -173,6 +112,94 @@ const toJsx = (source, options = {}) => {
   }
 
   return result;
+}
+
+const toJsx = (source, options = {}) => {
+  const localWorks = works.map(({ pre, post }) => ({ pre, post, context: {} }));
+
+  // force at least two spaces between depths
+  let pugCode = `\n${source.split(/\r\n/).join('\n').split(/\n/)
+    .map(e => e.replace(/^(\t*)/, (whole, p1) => p1.replace(/\t/g, '  ')))
+    .map(e => e.replace(/^(\s*)/, (whole, p1) => p1.replace(/\s/g, '  ')))
+    .join('\n')}\n`;
+  pugCode = removeIndent(pugCode);
+  pugCode = removePugComment(pugCode);
+
+  // convert annotations to tags with preprocessing
+  const { lines, annot, resolves } = pugCode
+    .split(/\n/)
+    .reduce((dict, curr) => {
+      let stepBack = '';
+      const indent = Array(curr.search(/[^\s]/) + 1).join(' ');
+      annotations.forEach((annotation) => {
+        if (curr.match(annotation.pattern)) {
+          const {
+            startBlock, replacement, endBlock, resolve,
+          } = annotation.process(curr, annotation.pattern);
+          if (resolve) {
+            dict.resolves = { ...dict.resolves, ...resolve };
+          }
+          if (startBlock || endBlock) {
+            const content = { startBlock, endBlock };
+            const key = hashCode(content);
+            dict.lines.push(`${indent}annot_${key}`);
+            dict.annot[key] = content;
+            stepBack = ' ';
+          }
+          curr = replacement;
+        }
+      });
+      dict.lines.push(`${stepBack}${curr}`);
+      return dict;
+    }, { lines: [], annot: {}, resolves: { ...options.resolve } });
+  if (!options.analyze && Object.keys(resolves).length > 0) {
+    options.analyze = true;
+  }
+  pugCode = removeIndent(lines.join('\n'));
+
+  // pre-processing pug.render
+  pugCode = localWorks
+    .filter(({ pre }) => pre && pre.length === 2)
+    .map(({ pre, context }) => [...pre, context])
+    .reduce((prev, [pattern, replaceFn, context]) => {
+      if (typeof replaceFn !== 'function') {
+        return prev.replace(pattern, replaceFn);
+      }
+      return prev.replace(pattern, (...args) => replaceFn(context, ...args));
+    }, pugCode);
+
+  // remove duplicate attributes
+  pugCode = removeDupAttrs(pugCode);
+
+  const mixins = {};
+  const plugins = [{
+    postParse: (ast) => {
+      ast = transform(ast);
+      ast.nodes
+        .filter(({ type, call }) => type === 'Mixin' && !call)
+        .forEach(({ name, block }) => mixins[name] = block);
+      return ast;
+    }
+  }];
+
+  // pug to html
+  const pugOptions = { pretty: true, filename: options.resourcePath, basedir: options.rootDir };
+  const jsxCode = `\n${pug.render(pugCode, { plugins, ...pugOptions })}\n`;
+
+  const result = processJsxCode(jsxCode, options, localWorks, annot, resolves);
+  Object.entries(mixins).forEach(([ name, ast ]) => {
+    const code = runtimeWrap(generateCode(ast, pugOptions))(pugOptions);
+    const { jsx, useThis, useMacro, useFragment, variables, requires, imports } = processJsxCode(code, options, localWorks, annot, resolves);
+    Object.entries({ useMacro, useFragment }).forEach(([ name, value ]) => result[name] = result[name] || value);
+    Object.assign(result.requires, requires);
+    if (imports.length) {
+      result.imports = Array.from(new Set(result.imports.concat(imports)));
+    }
+    mixins[name] = { jsx, useThis, variables };
+  });
+  result.mixins = mixins;
+
+  return result;
 };
 
 const pugToJsx = (source, userOptions = {}) => {
@@ -234,6 +261,15 @@ const pugToJsx = (source, userOptions = {}) => {
       result.jsx,
       '  );',
       '}',
+      ...Object.entries(result.mixins).map(([ name, { jsx, variables } ]) => [
+        '\n',
+        `export function ${name}(${variables.length > 0 ? '__params = {}' : ''}) {`,
+        variables.length > 0 && `  const { ${variables.join(', ')} } = __params;`,
+        '  return (',
+        jsx,
+        '  );',
+        '}',
+      ].filter(Boolean).join('\n')),
     ].filter(e => e !== false).join('\n');
     result = {
       ...result,

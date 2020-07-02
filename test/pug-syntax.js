@@ -118,6 +118,26 @@ import require_gsuhguc from './photo.jpg';
 export default function() {
   return <img src={require_gsuhguc} />;
 }
+
+
+@NAME: multi functions
+
+@INPUT:
+img(src=require('./photo.jpg'))
+mixin foo()
+  div bar
+
+@EXPECTED:
+import React from 'react';
+import require_gsuhguc from './photo.jpg';
+
+export default function() {
+  return <img src={require_gsuhguc} />;
+}
+
+export function foo() {
+  return <div>bar</div>;
+}
 `);
 
 describe('pug syntax', () => {
