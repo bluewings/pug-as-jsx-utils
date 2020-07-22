@@ -300,6 +300,9 @@ ul
 @INPUT:
 BrowserRouter
   Route(exact)
+  Route(exact strict)
+  Route(exact strict path="/")
+  Route(path="/" exact strict)
   Route(exact path="/" component="{Home}")
   Route(path="/" exact component="{Home}")
   Route(path="/" component="{Home}" exact)
@@ -309,6 +312,9 @@ BrowserRouter
 @EXPECTED:
 <BrowserRouter>
   <Route exact={true}></Route>
+  <Route exact={true} strict={true}></Route>
+  <Route exact={true} strict={true} path="/"></Route>
+  <Route path="/" exact={true} strict={true}></Route>
   <Route exact={true} path="/" component={Home}></Route>
   <Route path="/" exact={true} component={Home}></Route>
   <Route path="/" component={Home} exact={true}></Route>
