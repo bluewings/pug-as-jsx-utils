@@ -343,11 +343,24 @@ function getUsage({ useThis, variables }) {
   });
 }
 
+const attrsPattern = getPatternString(/([\w-]+)(=("[^"]*"|'[^']*'|\([^)]+\)|[^ )]+))?/)
+const searchPattern = replacePatternMark(
+  /([^\s=])\(((attrs,\s*|attrs,?\s+)*attrs)\)/,
+  /attrs/g,
+  attrsPattern,
+  'g'
+)
+const replacePattern = replacePatternMark(
+  /(,\s*|,?\s+)attrs/,
+  'attrs',
+  attrsPattern
+)
+const matchPattern = new RegExp(attrsPattern, 'g')
 function removeDupAttrs(pugCode) {
-  return pugCode.replace(/([^\s])\(([^()]{0,}?)\)/g, (whole, p0, p1) => {
+  return pugCode.replace(searchPattern, (whole, p0, p1) => {
     const matched = ` ${p1.replace(/\n/g, ' ')} `
-      .replace(/\s+([a-zA-Z0-9_-]+)(\s*=\s*(('.*?')|(".*?")))/g, ' $1=$3')    
-      .match(/([a-zA-Z0-9_-]+(\s*=\s*(('.*?')|(".*?"))){1,})|(?<=^|\s+)[a-zA-Z0-9_-]+($|\s+)/g);
+      .replace(replacePattern, ' $2$3')
+      .match(matchPattern);
     if (!matched) {
       return whole;
     }
