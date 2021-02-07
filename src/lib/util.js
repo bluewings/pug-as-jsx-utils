@@ -428,6 +428,10 @@ function getTransformFuncs(options) {
     ? [transform] : transform) || []).filter(e => isTransformOption(e));
 }
 
+function getPatternString(pattern) {
+  return pattern.toString().slice(1, -1)
+}
+
 export {
   analyzeJsx,
   hashCode,
@@ -438,4 +442,5 @@ export {
   removePugComment,
   babelTransform,
   getTransformFuncs,
+  getPatternString,
 };
