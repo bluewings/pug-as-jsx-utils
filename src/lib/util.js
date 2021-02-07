@@ -432,6 +432,10 @@ function getPatternString(pattern) {
   return pattern.toString().slice(1, -1)
 }
 
+function replacePatternMark(pattern, search, replace, flags) {
+  return new RegExp(getPatternString(pattern).replace(search, replace), flags)
+}
+
 export {
   analyzeJsx,
   hashCode,
@@ -443,4 +447,5 @@ export {
   babelTransform,
   getTransformFuncs,
   getPatternString,
+  replacePatternMark,
 };
