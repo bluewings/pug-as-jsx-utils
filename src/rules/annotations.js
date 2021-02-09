@@ -1,8 +1,21 @@
+import { getPatternString, replacePatternMark } from '../lib/util';
+
 const handler = {
   imports: (current, pattern) => {
-    const [, moduleName, name] = current.match(pattern);
+    const [, moduleName, , name1, members1, , , , name2, members2] = current.match(pattern);
+    const member = {};
+    if (members1 || members2) {
+      (members1 || members2).split(/,\s*/).forEach(x => {
+        const [name, asName] = x.split(/\s+as\s+/)
+        if (asName) {
+          member[asName] = name
+        } else {
+          member[x] = x
+        }
+      });
+    }
     return {
-      resolve: { [moduleName]: name },
+      resolve: { [moduleName]: { name: name1 || name2, member } },
       replacement: '',
     };
   },
@@ -77,10 +90,20 @@ const handler = {
   }),
 };
 
+const importDefaultPattern = getPatternString(/[^\s,]+/)
+const importMembersPattern = getPatternString(/([^\s,]+(\s+as\s+[^\s,]+)?,\s*)*[^\s}]+(\s+as\s+[^\s}]+)?/)
+const importPattern = replacePatternMark(
+  /^\s*\/\/\s+@import\s+([^\s]+)\s+=>\s+(%s)$/,
+  '%s',
+  getPatternString(/(default)|{\s*(members)\s*}|(default),\s*{\s*(members)\s*}/)
+    .replace(/default/g, importDefaultPattern)
+    .replace(/members/g, importMembersPattern)
+)
+
 const annotations = [
   // imports
   {
-    pattern: /^\s*\/\/\s+@import\s+([^\s]+)\s+=>\s+([^\s]+)$/,
+    pattern: importPattern,
     process: handler.imports,
   },
 

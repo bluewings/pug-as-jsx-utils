@@ -191,7 +191,7 @@ function values(object) {
   return Object.keys(object).map(key => object[key]);
 }
 
-function gerResolveDict(resolveOpt = {}) {
+function getResolveDict(resolveOpt = {}) {
   const resolveDict = entries(resolveOpt).map(([moduleName, detail]) => {
     const options = typeof detail === 'string' ? { name: detail } : detail;
     let member = options.member || {};
@@ -226,7 +226,7 @@ function gerResolveDict(resolveOpt = {}) {
 }
 
 function getImports(variables, resolveOpt = {}) {
-  const resolveDict = gerResolveDict(resolveOpt);
+  const resolveDict = getResolveDict(resolveOpt);
   const { used, imports } = variables.reduce((prev, each) => {
     const matched = resolveDict[each];
     if (!matched) {
@@ -428,6 +428,14 @@ function getTransformFuncs(options) {
     ? [transform] : transform) || []).filter(e => isTransformOption(e));
 }
 
+function getPatternString(pattern) {
+  return pattern.toString().slice(1, -1)
+}
+
+function replacePatternMark(pattern, search, replace, flags) {
+  return new RegExp(getPatternString(pattern).replace(search, replace), flags)
+}
+
 export {
   analyzeJsx,
   hashCode,
@@ -438,4 +446,6 @@ export {
   removePugComment,
   babelTransform,
   getTransformFuncs,
+  getPatternString,
+  replacePatternMark,
 };

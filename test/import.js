@@ -61,14 +61,28 @@ describe('@import css', () => {
   it('resolve module', () => {
     const input = `
     // @import .module.scss => styles
+    // @import module1 => Foo, { Bar }
+    // @import module2 => { Test as Baz }
     .root(className='{styles.root}') Hello World
+    Foo
+    Bar
+    Baz
     `;
     const expected = removeIndent(`
     import React from 'react';
+    import Foo, { Bar } from 'module1';
+    import { Test as Baz } from 'module2';
     import styles from '%BASENAME%.module.scss';
     
     export default function() {
-      return <div className={'root ' + styles.root}>Hello World</div>;
+      return (
+        <>
+          <div className={'root ' + styles.root}>Hello World</div>
+          <Foo></Foo>
+          <Bar></Bar>
+          <Baz></Baz>
+        </>
+      );
     }
     `);
     const { jsxTemplate } = pugToJsx(input, {
