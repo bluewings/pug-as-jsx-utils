@@ -13,10 +13,16 @@ const transform = function (ast) {
           if (name.startsWith('...')) {
             attr.name = `{${attr.name}}`;
             attr.val = '"__rest"';
-          } else if (!/^(['"]).*\1$/.test(val)) {
-            val = !/^\(.*\)$/.test(val) ? val : val.substring(1, val.length - 1);
-            attr.val = `"{${!val.replace ? val : val.replace(/"/g, '\\"')}}"`;
-            attr.mustEscape = false;
+          } else {
+            if (name.startsWith('@')) {
+              attr.name = name.substr(1);
+              val = `($event => ${val.substr(1, val.length - 2)})`;
+            }
+            if (!/^(['"]).*\1$/.test(val)) {
+              val = !/^\(.*\)$/.test(val) ? val : val.substring(1, val.length - 1);
+              attr.val = `"{${!val.replace ? val : val.replace(/"/g, '\\"')}}"`;
+              attr.mustEscape = false;
+            }
           }
         });
         break;
