@@ -301,25 +301,27 @@ ul
 BrowserRouter
   Route(exact)
   Route(exact strict)
-  Route(exact strict path="/")
+  Route(exact strict path=path)
   Route(path="/" exact strict)
   Route(exact path="/" component="{Home}")
   Route(path="/" exact component="{Home}")
   Route(path="/" component="{Home}" exact)
   Route(path="/" component="{Home}" exact="{true}")
   Route(path="/" component="{Home}" exact="{false}")
+  Route(foo=('bar') bar=(baz === 'baz'))
 
 @EXPECTED:
 <BrowserRouter>
   <Route exact={true}></Route>
   <Route exact={true} strict={true}></Route>
-  <Route exact={true} strict={true} path="/"></Route>
+  <Route exact={true} strict={true} path={path}></Route>
   <Route path="/" exact={true} strict={true}></Route>
   <Route exact={true} path="/" component={Home}></Route>
   <Route path="/" exact={true} component={Home}></Route>
   <Route path="/" component={Home} exact={true}></Route>
   <Route path="/" component={Home} exact={true}></Route>
   <Route path="/" component={Home} exact={false}></Route>
+  <Route foo={'bar'} bar={baz === 'baz'}></Route>
 </BrowserRouter>
 
 @NAME: children as function
